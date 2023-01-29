@@ -56,10 +56,14 @@ function preventDefault(event: React.MouseEvent) {
   event.preventDefault();
 }
 
-export default function JobsTable() {
+interface PropsType {
+  title?: string;
+}
+
+export default function JobsTable(props: PropsType) {
   return (
     <React.Fragment>
-      <Title>Jobs</Title>
+      <Title>{props.title ? props.title : "Jobs"}</Title>
       <Grid container xs={12} md={12} lg={12}>
         <Grid xs={11} md={11} lg={11}>
           <Autocomplete
