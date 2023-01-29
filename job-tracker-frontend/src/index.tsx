@@ -2,14 +2,22 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { observer, Provider } from "mobx-react";
+import AppStore from "./components/app/AppStore"
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+const store: AppStore = new AppStore();
+export const AppContext = React.createContext(store);
+
 root.render(
   <React.StrictMode>
-    <App />
+    <AppContext.Provider value={store}>
+      <App />
+    </AppContext.Provider>
   </React.StrictMode>
 );
 
