@@ -54,10 +54,14 @@ function preventDefault(event: React.MouseEvent) {
   event.preventDefault();
 }
 
-export default function JobsTable() {
+interface PropsType {
+  title?: string;
+}
+
+export default function JobsTable(props: PropsType) {
   return (
     <React.Fragment>
-      <Title>Jobs</Title>
+      <Title>{props.title ? props.title : "Jobs"}</Title>
       <Table size="small">
         <TableHead>
           <TableRow>

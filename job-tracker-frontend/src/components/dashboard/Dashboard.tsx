@@ -134,14 +134,34 @@ function DashboardContent() {
             return (
                 <Grid item xs={12} md={12} lg={12}>
                     <Paper
-                    sx={{
-                        p: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: 240,
-                    }}
+                      sx={{
+                          p: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          height: 240,
+                      }}
                     >
                     <Chart />
+                    </Paper>
+                    <Paper
+                      sx={{
+                          p: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          mt: 2,
+                      }}
+                    >
+                    <JobsTable title='Job Recommendations' />
+                    </Paper>
+                    <Paper
+                      sx={{
+                          p: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          mt: 2,
+                      }}
+                    >
+                      <ContactsTable />
                     </Paper>
                 </Grid>
             );
