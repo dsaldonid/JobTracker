@@ -6,6 +6,8 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
+import { Autocomplete, Button, Grid, TextField } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 // Generate Order Data
 function createData(
@@ -58,6 +60,22 @@ export default function ContactsTable() {
   return (
     <React.Fragment>
       <Title>Contacts</Title>
+      <Grid container xs={12} md={12} lg={12}>
+        <Grid xs={11} md={11} lg={11}>
+          <Autocomplete
+          options={rows}
+          fullWidth
+          getOptionLabel={(option)=>option.name}
+          disablePortal
+          renderInput={(params) => <TextField {...params} label="Search Contacts" />}
+          />
+        </Grid>
+        <Grid xs={1} md={1} lg={1} sx={{mt: 1}}>
+          <Button>
+            <SearchIcon />
+        </Button>
+        </Grid>
+      </Grid>
       <Table size="small">
         <TableHead>
           <TableRow>
