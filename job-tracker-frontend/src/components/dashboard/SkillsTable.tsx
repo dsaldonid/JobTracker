@@ -1,11 +1,11 @@
 import * as React from 'react';
-import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
+import { Button, Grid, Input } from '@mui/material';
 
 // Generate Order Data
 function createData(
@@ -48,6 +48,32 @@ export default function SkillsTable() {
   return (
     <React.Fragment>
       <Title>Skills</Title>
+      <Grid container xs={12} md={12} lg={12}>
+      <Grid
+          container
+          direction="row"
+          justifyContent="space-evenly"
+          alignItems="center"
+          xs={10}
+          md={10}
+          lg={10}
+          spacing={{xs: 2, md:2, lg: 2}}
+        >
+        <Grid xs={5} md={5} lg={5}>
+          <Input placeholder='Add skill name...' fullWidth/>
+        </Grid>
+        <Grid xs={5} md={5} lg={5}> 
+          <Input placeholder='Add skill comfort level...' fullWidth/>
+        </Grid>
+        <Grid>
+        </Grid>
+      </Grid>
+        <Grid container xs={2} md={2} lg={2} justifyContent="flex-end">
+          <Button variant="contained">
+            Add Skill
+          </Button>
+        </Grid>
+      </Grid>
       <Table size="small">
         <TableHead>
           <TableRow>
