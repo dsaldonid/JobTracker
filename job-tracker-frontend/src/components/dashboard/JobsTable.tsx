@@ -12,6 +12,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import Title from "./Title";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
+// Interface for Jobs:
+interface Job {
+  id: string;
+  job_name: string;
+  job_location: string;
+  date_posted: Date;
+  salary_est: string;
+}
+
 // Generate Order Data
 function createData(
   id: number,
@@ -81,7 +90,7 @@ interface PropsType {
 
 export default function JobsTable(props: PropsType) {
   const [allJobs, setAllJobs] = React.useState(tableData);
-  const [addJob, setAddJob] = React.useState({
+  const [addJob, setAddJob] = React.useState<Job>({
     id: "",
     job_name: "",
     job_location: "",
@@ -173,6 +182,7 @@ export default function JobsTable(props: PropsType) {
             pageSize={pageSize}
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
+            // processRowUpdate={processRowUpdate}
           />
         </Paper>
         <h2>Add a Job</h2>
