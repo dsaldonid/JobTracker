@@ -10,14 +10,19 @@ import Paper from "@mui/material/Paper";
 import { Autocomplete, Button, Grid, TextField, SxProps } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Title from "./Title";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridRowModel,
+  GridRowId,
+} from "@mui/x-data-grid";
 
 // Interface for Jobs:
 interface Job {
-  id: string;
+  id: GridRowId;
   job_name: string;
   job_location: string;
-  date_posted: Date;
+  date_posted: string;
   salary_est: string;
 }
 
@@ -113,6 +118,14 @@ export default function JobsTable(props: PropsType) {
     setAddJob(newJob);
   };
 
+  const processRowUpdate = (newRow: GridRowModel) => {
+    console.log(newRow);
+    return newRow;
+  };
+  const handleProcessRowUpdateError = (error: Error) => {
+    console.log(error);
+  };
+
   const handleAddJobFormSubmit = (e) => {
     e.preventDefault();
 
@@ -182,7 +195,9 @@ export default function JobsTable(props: PropsType) {
             pageSize={pageSize}
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
-            // processRowUpdate={processRowUpdate}
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={processRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
           />
         </Paper>
         <h2>Add a Job</h2>
@@ -241,7 +256,7 @@ export default function JobsTable(props: PropsType) {
 }
 
 // https://mockaroo.com/
-const tableData: GridColDef[] = [
+const tableData: GridRowsProp = [
   {
     id: 1,
     job_name: "GIS Technical Architect",
