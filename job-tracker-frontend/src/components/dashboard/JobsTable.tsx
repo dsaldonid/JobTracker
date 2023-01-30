@@ -7,6 +7,10 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 import { Autocomplete, Button, Grid, TextField, SxProps } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Title from "./Title";
@@ -95,6 +99,7 @@ interface PropsType {
 
 export default function JobsTable(props: PropsType) {
   const [allJobs, setAllJobs] = React.useState(tableData);
+  const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
     id: "",
     job_name: "",
@@ -118,10 +123,14 @@ export default function JobsTable(props: PropsType) {
     setAddJob(newJob);
   };
 
-  const processRowUpdate = (newRow: GridRowModel) => {
-    console.log(newRow);
-    return newRow;
-  };
+  const processRowUpdate = React.useCallback(
+    (newRow: GridRowModel, oldRow: GridRowModel) =>
+      new Promise<GridRowModel>((resolve, reject) => {
+        setConfirmData({ resolve, reject, newRow, oldRow });
+      }),
+    []
+  );
+
   const handleProcessRowUpdateError = (error: Error) => {
     console.log(error);
   };
@@ -139,6 +148,33 @@ export default function JobsTable(props: PropsType) {
     setAllJobs([...allJobs, newJob]);
     // console.log(updateJobs);
   };
+
+  const handleDataChangeDialog = (response) => {
+    const { newRow, oldRow, resolve } = confirmData;
+    resolve(newRow) ? response : resolve(oldRow);
+    setConfirmData(null);
+  };
+
+  const renderConfirmDialog = () => {
+    if (!confirmData) {
+      return null;
+    }
+
+    const { newRow, oldRow, resolve } = confirmData;
+
+    // const mutation = computeMutation(newRow, oldRow);
+
+    return (
+      <Dialog maxWidth="xs" open={confirmData}>
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => handleDataChangeDialog("Yes")}>No</Button>
+          <Button onClick={() => handleDataChangeDialog(null)}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   return (
     <React.Fragment>
       <Title>{props.title ? props.title : "Jobs"}</Title>
@@ -186,6 +222,7 @@ export default function JobsTable(props: PropsType) {
           </TableBody>
         </Table> */}
         <Paper sx={dataGridStyles}>
+          {renderConfirmDialog()}
           <DataGrid
             columns={columns}
             rows={allJobs}
