@@ -7,9 +7,10 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Autocomplete, Button, Grid, TextField } from "@mui/material";
+import { Autocomplete, Button, Grid, TextField, SxProps } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Title from "./Title";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 // Generate Order Data
 function createData(
@@ -21,6 +22,40 @@ function createData(
 ) {
   return { id, date, name, shipTo, amount };
 }
+
+const columns: GridColDef[] = [
+  {
+    field: "job_name",
+    headerName: "Job Name",
+    width: 200,
+    editable: true,
+    sortable: true,
+  },
+  {
+    field: "job_location",
+    headerName: "Job Location",
+    width: 270,
+    editable: true,
+    sortable: true,
+  },
+  {
+    field: "salary_est",
+    headerName: "Salary Estimate",
+    width: 170,
+    editable: true,
+    sortable: true,
+  },
+  {
+    field: "date_posted",
+    headerName: "Date Posted",
+    width: 170,
+    sortable: true,
+  },
+];
+
+const dataGridStyles: SxProps = {
+  height: 500,
+};
 
 const rows = [
   createData(0, "16 Mar, 2019", "Data Engineer", "Tupelo, MS", 312.44),
@@ -54,6 +89,10 @@ export default function JobsTable(props: PropsType) {
     salary_est: "",
   });
 
+  React.useEffect(() => {
+    setAllJobs(tableData);
+  }, []);
+
   const handleAddJob = (e) => {
     e.preventDefault();
 
@@ -62,7 +101,6 @@ export default function JobsTable(props: PropsType) {
     const newJob = { ...addJob };
     newJob[inputField] = inputValue;
     setAddJob(newJob);
-    console.log("updatedObject: ", newJob);
   };
 
   const handleAddJobFormSubmit = (e) => {
@@ -99,9 +137,10 @@ export default function JobsTable(props: PropsType) {
           </Button>
         </Grid>
       </Grid>
-
+      <br />
+      <h2>MUI TABLE</h2>
       <TableContainer component={Paper}>
-        <Table aria-label="simple table" size="small" stickyHeader>
+        {/* <Table aria-label="simple table" size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell className="tableHeader">Date Posted</TableCell>
@@ -122,7 +161,10 @@ export default function JobsTable(props: PropsType) {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </Table> */}
+        <Paper sx={dataGridStyles}>
+          <DataGrid columns={columns} rows={allJobs} />
+        </Paper>
         <h2>Add a Job</h2>
         <form onSubmit={handleAddJobFormSubmit}>
           <TextField
@@ -179,7 +221,7 @@ export default function JobsTable(props: PropsType) {
 }
 
 // https://mockaroo.com/
-const tableData = [
+const tableData: GridColDef[] = [
   {
     id: 1,
     job_name: "GIS Technical Architect",
