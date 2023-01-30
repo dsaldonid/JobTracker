@@ -88,6 +88,7 @@ export default function JobsTable(props: PropsType) {
     date_posted: "",
     salary_est: "",
   });
+  const [pageSize, setPageSize] = React.useState<number>(20);
 
   React.useEffect(() => {
     setAllJobs(tableData);
@@ -163,7 +164,16 @@ export default function JobsTable(props: PropsType) {
           </TableBody>
         </Table> */}
         <Paper sx={dataGridStyles}>
-          <DataGrid columns={columns} rows={allJobs} />
+          <DataGrid
+            columns={columns}
+            rows={allJobs}
+            onPageSizeChange={(pageSizeChoice: number) =>
+              setPageSize(pageSizeChoice)
+            }
+            pageSize={pageSize}
+            rowsPerPageOptions={[20, 40, 60]}
+            // autoPageSize={true}
+          />
         </Paper>
         <h2>Add a Job</h2>
         <form onSubmit={handleAddJobFormSubmit}>
