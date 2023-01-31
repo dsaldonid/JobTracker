@@ -19,7 +19,9 @@ import {
   GridColDef,
   GridRowModel,
   GridRowId,
+  GridRowsProp,
 } from "@mui/x-data-grid";
+import moment from "moment";
 
 // Interface for Jobs:
 interface Job {
@@ -68,6 +70,8 @@ const columns: GridColDef[] = [
     headerName: "Date Posted",
     width: 170,
     sortable: true,
+    renderCell: (params) =>
+      moment(params.row.date_posted).format("YYYY-MM-DD HH:MM:SS"),
   },
 ];
 
@@ -151,8 +155,13 @@ export default function JobsTable(props: PropsType) {
 
   const handleDataChangeDialog = (response) => {
     const { newRow, oldRow, resolve } = confirmData;
-    resolve(newRow) ? response : resolve(oldRow);
+    if (response == "Yes") {
+      resolve(newRow);
+    } else if (response == "No") {
+      resolve(oldRow);
+    }
     setConfirmData(null);
+    console.log("New row to be sent is: ", newRow);
   };
 
   const renderConfirmDialog = () => {
@@ -168,8 +177,8 @@ export default function JobsTable(props: PropsType) {
       <Dialog maxWidth="xs" open={confirmData}>
         <DialogTitle>Are you sure?</DialogTitle>
         <DialogActions>
-          <Button onClick={() => handleDataChangeDialog("Yes")}>No</Button>
-          <Button onClick={() => handleDataChangeDialog(null)}>Yes</Button>
+          <Button onClick={() => handleDataChangeDialog("No")}>No</Button>
+          <Button onClick={() => handleDataChangeDialog("Yes")}>Yes</Button>
         </DialogActions>
       </Dialog>
     );
