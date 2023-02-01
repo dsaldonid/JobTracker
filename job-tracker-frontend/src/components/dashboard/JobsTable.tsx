@@ -189,6 +189,14 @@ export default function JobsTable(props: PropsType) {
       }),
     []
   );
+  // const onCellEditCommit = (cellData) => {
+  //   const { id, field, value } = cellData;
+  //   console.log(id, field, value, cellData);
+  };
+  // new Promise<GridRowModel>((resolve, reject) => {
+  //   setConfirmData({ resolve, reject, newRow, oldRow });
+  // }),
+  // []
 
   const handleProcessRowUpdateError = (error: Error) => {
     console.log(error);
@@ -216,7 +224,7 @@ export default function JobsTable(props: PropsType) {
       resolve(oldRow);
     }
     setConfirmData(null);
-    console.log("New row to be sent is: ", newRow);
+    // console.log("New row to be sent is: ", newRow);
   };
 
   const renderConfirmDialog = () => {
@@ -225,7 +233,10 @@ export default function JobsTable(props: PropsType) {
     }
 
     const { newRow, oldRow, resolve } = confirmData;
-
+    console.log("What we get is: ", oldRow, newRow)
+    if {oldRow === newRow}{
+      return null
+    }
     // const mutation = computeMutation(newRow, oldRow);
 
     return (
@@ -298,9 +309,7 @@ export default function JobsTable(props: PropsType) {
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
             experimentalFeatures={{ newEditingApi: true }}
-            onCellEditCommit={(props, event) => {
-              console.log("what are props: ", props);
-            }}
+            // onCellEditCommit={onCellEditCommit}
             processRowUpdate={processRowUpdate}
             onProcessRowUpdateError={handleProcessRowUpdateError}
           />
