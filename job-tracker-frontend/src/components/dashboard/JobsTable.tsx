@@ -27,6 +27,8 @@ import {
   GridRowModel,
   GridRowId,
   GridRowsProp,
+  GridRenderCellParams,
+  useGridApiContext,
 } from "@mui/x-data-grid";
 import moment from "moment";
 
@@ -57,21 +59,6 @@ const columns: GridColDef[] = [
     width: 200,
     editable: true,
     sortable: true,
-    renderEditCell: (params) => (
-      <TextField
-        multiline
-        variant={"standard"}
-        fullWidth
-        InputProps={{ disableUnderline: true }}
-        maxRows={4}
-        sx={{
-          padding: 1,
-          height: "100px",
-        }}
-        defaultValue={params.row.job_name}
-        // value={params.row.job_name}
-      ></TextField>
-    ),
     renderCell: (params) => (
       <TextField
         multiline
