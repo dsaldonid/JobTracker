@@ -11,7 +11,14 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import { Autocomplete, Button, Grid, TextField, SxProps } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  Grid,
+  TextField,
+  SxProps,
+  Box,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Title from "./Title";
 import {
@@ -50,18 +57,67 @@ const columns: GridColDef[] = [
     width: 200,
     editable: true,
     sortable: true,
+    renderEditCell: (params) => (
+      <TextField
+        multiline
+        variant={"standard"}
+        fullWidth
+        InputProps={{ disableUnderline: true }}
+        maxRows={4}
+        sx={{
+          padding: 1,
+          height: "100px",
+        }}
+        defaultValue={params.row.job_name}
+        // value={params.row.job_name}
+      ></TextField>
+    ),
+    renderCell: (params) => (
+      <TextField
+        multiline
+        variant={"standard"}
+        fullWidth
+        InputProps={{ disableUnderline: true }}
+        maxRows={4}
+        // InputLabelProps={{
+        //   readOnly: true,
+        // }}
+        sx={{
+          padding: 1,
+        }}
+        defaultValue={params.row.job_name}
+        value={params.row.job_name}
+      ></TextField>
+    ),
   },
   {
     field: "job_location",
     headerName: "Job Location",
-    width: 270,
+    width: 350,
     editable: true,
     sortable: true,
+    renderCell: (params) => (
+      <TextField
+        multiline
+        variant={"standard"}
+        fullWidth
+        InputProps={{ disableUnderline: true }}
+        maxRows={4}
+        InputLabelProps={{
+          readOnly: true,
+        }}
+        sx={{
+          padding: 1,
+        }}
+        defaultValue={params.row.job_location}
+        value={params.row.job_location}
+      ></TextField>
+    ),
   },
   {
     field: "salary_est",
-    headerName: "Salary Estimate",
-    width: 170,
+    headerName: "Salary Estimate(USD)",
+    width: 200,
     editable: true,
     sortable: true,
   },
@@ -70,8 +126,7 @@ const columns: GridColDef[] = [
     headerName: "Date Posted",
     width: 170,
     sortable: true,
-    renderCell: (params) =>
-      moment(params.row.date_posted).format("YYYY-MM-DD HH:MM:SS"),
+    renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
   },
 ];
 
@@ -235,6 +290,7 @@ export default function JobsTable(props: PropsType) {
           <DataGrid
             columns={columns}
             rows={allJobs}
+            getRowHeight={() => "auto"}
             onPageSizeChange={(pageSizeChoice: number) =>
               setPageSize(pageSizeChoice)
             }
@@ -242,6 +298,9 @@ export default function JobsTable(props: PropsType) {
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
             experimentalFeatures={{ newEditingApi: true }}
+            onCellEditCommit={(props, event) => {
+              console.log("what are props: ", props);
+            }}
             processRowUpdate={processRowUpdate}
             onProcessRowUpdateError={handleProcessRowUpdateError}
           />
@@ -306,7 +365,8 @@ const tableData: GridRowsProp = [
   {
     id: 1,
     job_name: "GIS Technical Architect",
-    job_location: "5 Declaration Pass",
+    job_location:
+      "Caracas venezuela and then i came home but i did't know what to do so i just went aond and on and on",
     date_posted: "9/11/2022",
     salary_est: "314078.29",
   },
