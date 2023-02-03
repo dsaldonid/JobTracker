@@ -31,6 +31,10 @@ import {
   useGridApiContext,
 } from "@mui/x-data-grid";
 import moment from "moment";
+import { styled } from "@mui/material/styles";
+import {
+  randomId,
+} from '@mui/x-data-grid-generator';
 
 // Interface for Jobs:
 interface Job {
@@ -52,6 +56,14 @@ function createData(
   return { id, date, name, shipTo, amount };
 }
 
+// Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
+const CustomDisabledTextField = styled(TextField)(() => ({
+  ".MuiInputBase-input.Mui-disabled": {
+    WebkitTextFillColor: "#000",
+    color: "#000"
+  }
+}));
+
 const columns: GridColDef[] = [
   {
     field: "job_name",
@@ -60,12 +72,13 @@ const columns: GridColDef[] = [
     editable: true,
     sortable: true,
     renderCell: (params) => (
-      <TextField
+      <CustomDisabledTextField
         multiline
         variant={"standard"}
         fullWidth
         InputProps={{ disableUnderline: true }}
         maxRows={4}
+        disabled={true}
         // InputLabelProps={{
         //   readOnly: true,
         // }}
@@ -74,7 +87,7 @@ const columns: GridColDef[] = [
         }}
         defaultValue={params.row.job_name}
         value={params.row.job_name}
-      ></TextField>
+      />
     ),
   },
   {
@@ -84,21 +97,23 @@ const columns: GridColDef[] = [
     editable: true,
     sortable: true,
     renderCell: (params) => (
-      <TextField
+      <CustomDisabledTextField
         multiline
         variant={"standard"}
         fullWidth
         InputProps={{ disableUnderline: true }}
         maxRows={4}
-        InputLabelProps={{
-          readOnly: true,
-        }}
+        disabled={true}
+        // InputLabelProps={{
+        //   readOnly: true,
+        // }}
         sx={{
           padding: 1,
+          color: 'primary.main',
         }}
         defaultValue={params.row.job_location}
         value={params.row.job_location}
-      ></TextField>
+      />
     ),
   },
   {
@@ -113,7 +128,7 @@ const columns: GridColDef[] = [
     headerName: "Date Posted",
     width: 170,
     sortable: true,
-    renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
+    // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
   },
 ];
 
@@ -144,7 +159,7 @@ interface PropsType {
 }
 
 export default function JobsTable(props: PropsType) {
-  const [allJobs, setAllJobs] = React.useState(tableData);
+  const [allJobs, setAllJobs] = React.useState<GridRowsProp[]>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
     id: "",
@@ -352,7 +367,7 @@ export default function JobsTable(props: PropsType) {
 }
 
 // https://mockaroo.com/
-const tableData: GridRowsProp = [
+const tableData: GridRowsProp[] = [
   {
     id: 1,
     job_name: "GIS Technical Architect",
