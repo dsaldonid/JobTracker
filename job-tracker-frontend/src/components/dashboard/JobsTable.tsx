@@ -102,23 +102,24 @@ export default function JobsTable() {
       ),
     },
     {
-      field: "dateCreated",
-      headerName: "Date Created",
-      width: 200,
+      field: "company",
+      headerName: "Company",
+      width: 150,
       editable: true,
       sortable: true,
     },
     {
-      field: "priority",
-      headerName: "Priority",
-      width: 200,
+      field: "dateCreated",
+      headerName: "Date Created",
+      hide: true,
+      width: 120,
       editable: true,
       sortable: true,
     },
     {
       field: "status",
       headerName: "Status",
-      width: 200,
+      width: 100,
       type: "singleSelect",
       valueOptions: [
         "Bookmarked",
@@ -134,14 +135,14 @@ export default function JobsTable() {
     {
       field: "salary",
       headerName: "Salary(USD)",
-      width: 200,
+      width: 120,
       editable: true,
       sortable: true,
     },
     {
       field: "location",
       headerName: "Job Location",
-      width: 350,
+      width: 150,
       editable: true,
       sortable: true,
       renderCell: (params) => (
@@ -165,6 +166,7 @@ export default function JobsTable() {
       field: "notes",
       headerName: "Notes",
       width: 350,
+      hide: true,
       editable: true,
       sortable: true,
       renderCell: (params) => (
@@ -185,23 +187,23 @@ export default function JobsTable() {
       ),
     },
     {
-      field: "company",
-      headerName: "Company",
-      width: 200,
-      editable: true,
-      sortable: true,
-    },
-    {
       field: "dateApplied",
       headerName: "Date Applied",
-      width: 170,
+      width: 100,
       sortable: true,
       // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
     },
     {
+      field: "priority",
+      headerName: "Priority",
+      width: 80,
+      editable: true,
+      sortable: true,
+    },
+    {
       field: "actions",
       headerName: "Actions",
-      width: 400,
+      width: 100,
       renderCell: (params) => {
         return (
           <Button
