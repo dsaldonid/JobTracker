@@ -37,15 +37,15 @@ import { randomId } from "@mui/x-data-grid-generator";
 // Interface for Jobs:
 interface Job {
   rowId: GridRowId;
-  jobTitle: string;
-  dateCreated: string;
-  priority: string;
-  status: string;
-  salary: string;
-  location: string;
-  notes: string;
-  company: string;
-  dateApplied: string;
+  jobTitle?: string;
+  dateCreated?: string | Date;
+  priority?: string;
+  status?: string;
+  salary?: string;
+  location?: string;
+  notes?: string;
+  company?: string;
+  dateApplied?: string | Date;
 }
 
 // Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
@@ -160,8 +160,8 @@ const columns: GridColDef[] = [
           padding: 1,
           color: "primary.main",
         }}
-        defaultValue={params.row.location}
-        value={params.row.location}
+        defaultValue={params.row.notes}
+        value={params.row.notes}
       />
     ),
   },
@@ -189,7 +189,7 @@ function preventDefault(event: React.MouseEvent) {
   event.preventDefault();
 }
 
-export default function JobsTable(props: PropsType) {
+export default function JobsTable() {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
@@ -219,7 +219,8 @@ export default function JobsTable(props: PropsType) {
     const inputField = e.target.getAttribute("name");
     const inputValue = e.target.value;
     const newJob = { ...addJob };
-    newJob[inputField] = inputValue;
+    // https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
+    newJob[inputField as keyof typeof newJob] = inputValue;
     setAddJob(newJob);
   };
 
@@ -259,7 +260,7 @@ export default function JobsTable(props: PropsType) {
   };
 
   // User chooses dialog options on editted cell:
-  const handleDataChangeDialog = (response: String) => {
+  const handleDataChangeDialog = (response: string) => {
     const { newRow, oldRow, resolve } = confirmData;
     if (response == "Yes") {
       resolve(newRow);
