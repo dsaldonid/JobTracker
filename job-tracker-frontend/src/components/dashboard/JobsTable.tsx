@@ -33,6 +33,7 @@ import {
 import moment from "moment";
 import { styled } from "@mui/material/styles";
 import { randomId } from "@mui/x-data-grid-generator";
+import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
 
 // Interface for Jobs:
 interface Job {
@@ -56,139 +57,6 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-const columns: GridColDef[] = [
-  {
-    field: "jobTitle",
-    headerName: "Job Title",
-    width: 200,
-    editable: true,
-    sortable: true,
-    renderCell: (params) => (
-      <CustomDisabledTextField
-        multiline
-        variant={"standard"}
-        fullWidth
-        InputProps={{ disableUnderline: true }}
-        maxRows={4}
-        disabled={true}
-        // InputLabelProps={{
-        //   readOnly: true,
-        // }}
-        sx={{
-          padding: 1,
-        }}
-        defaultValue={params.row.jobTitle}
-        value={params.row.jobTitle}
-      />
-    ),
-  },
-  {
-    field: "dateCreated",
-    headerName: "Date Created",
-    width: 200,
-    editable: true,
-    sortable: true,
-  },
-  {
-    field: "priority",
-    headerName: "Priority",
-    width: 200,
-    editable: true,
-    sortable: true,
-  },
-  {
-    field: "status",
-    headerName: "Status",
-    width: 200,
-    type: "singleSelect",
-    valueOptions: [
-      "Bookmarked",
-      "Applying",
-      "Applied",
-      "Interviewing",
-      "Negotiating",
-      "Accepted",
-    ],
-    editable: true,
-    sortable: true,
-  },
-  {
-    field: "salary",
-    headerName: "Salary(USD)",
-    width: 200,
-    editable: true,
-    sortable: true,
-  },
-  {
-    field: "location",
-    headerName: "Job Location",
-    width: 350,
-    editable: true,
-    sortable: true,
-    renderCell: (params) => (
-      <CustomDisabledTextField
-        multiline
-        variant={"standard"}
-        fullWidth
-        InputProps={{ disableUnderline: true }}
-        maxRows={4}
-        disabled={true}
-        sx={{
-          padding: 1,
-          color: "primary.main",
-        }}
-        defaultValue={params.row.location}
-        value={params.row.location}
-      />
-    ),
-  },
-  {
-    field: "notes",
-    headerName: "Notes",
-    width: 350,
-    editable: true,
-    sortable: true,
-    renderCell: (params) => (
-      <CustomDisabledTextField
-        multiline
-        variant={"standard"}
-        fullWidth
-        InputProps={{ disableUnderline: true }}
-        maxRows={4}
-        disabled={true}
-        sx={{
-          padding: 1,
-          color: "primary.main",
-        }}
-        defaultValue={params.row.notes}
-        value={params.row.notes}
-      />
-    ),
-  },
-  {
-    field: "company",
-    headerName: "Company",
-    width: 200,
-    editable: true,
-    sortable: true,
-  },
-  {
-    field: "dateApplied",
-    headerName: "Date Applied",
-    width: 170,
-    sortable: true,
-    // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
-  },
-];
-
-const dataGridStyles: SxProps = {
-  height: 500,
-};
-
-function preventDefault(event: React.MouseEvent) {
-  event.preventDefault();
-}
-
 export default function JobsTable() {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
@@ -205,6 +73,155 @@ export default function JobsTable() {
     dateApplied: "",
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
+  const [rowId, setRowId] = React.useState<number | null>();
+
+  const columns: GridColDef[] = [
+    {
+      field: "jobTitle",
+      headerName: "Job Title",
+      width: 200,
+      editable: true,
+      sortable: true,
+      renderCell: (params) => (
+        <CustomDisabledTextField
+          multiline
+          variant={"standard"}
+          fullWidth
+          InputProps={{ disableUnderline: true }}
+          maxRows={4}
+          disabled={true}
+          // InputLabelProps={{
+          //   readOnly: true,
+          // }}
+          sx={{
+            padding: 1,
+          }}
+          defaultValue={params.row.jobTitle}
+          value={params.row.jobTitle}
+        />
+      ),
+    },
+    {
+      field: "dateCreated",
+      headerName: "Date Created",
+      width: 200,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "priority",
+      headerName: "Priority",
+      width: 200,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 200,
+      type: "singleSelect",
+      valueOptions: [
+        "Bookmarked",
+        "Applying",
+        "Applied",
+        "Interviewing",
+        "Negotiating",
+        "Accepted",
+      ],
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "salary",
+      headerName: "Salary(USD)",
+      width: 200,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "location",
+      headerName: "Job Location",
+      width: 350,
+      editable: true,
+      sortable: true,
+      renderCell: (params) => (
+        <CustomDisabledTextField
+          multiline
+          variant={"standard"}
+          fullWidth
+          InputProps={{ disableUnderline: true }}
+          maxRows={4}
+          disabled={true}
+          sx={{
+            padding: 1,
+            color: "primary.main",
+          }}
+          defaultValue={params.row.location}
+          value={params.row.location}
+        />
+      ),
+    },
+    {
+      field: "notes",
+      headerName: "Notes",
+      width: 350,
+      editable: true,
+      sortable: true,
+      renderCell: (params) => (
+        <CustomDisabledTextField
+          multiline
+          variant={"standard"}
+          fullWidth
+          InputProps={{ disableUnderline: true }}
+          maxRows={4}
+          disabled={true}
+          sx={{
+            padding: 1,
+            color: "primary.main",
+          }}
+          defaultValue={params.row.notes}
+          value={params.row.notes}
+        />
+      ),
+    },
+    {
+      field: "company",
+      headerName: "Company",
+      width: 200,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "dateApplied",
+      headerName: "Date Applied",
+      width: 170,
+      sortable: true,
+      // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 400,
+      renderCell: (params) => {
+        return (
+          <Button
+            onClick={() => handleDelete(params.row.jobId)}
+            variant="contained"
+          >
+            Delete
+          </Button>
+        );
+      },
+    },
+  ];
+
+  const dataGridStyles: SxProps = {
+    height: 500,
+  };
+
+  function preventDefault(event: React.MouseEvent) {
+    event.preventDefault();
+  }
 
   // Called once on page load:
   React.useEffect(() => {
@@ -243,7 +260,7 @@ export default function JobsTable() {
     setAllJobs([...allJobs, newJob]);
   };
 
-  /*------------------------------------Edit Cell Dialog Logic------------------------------------*/
+  /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
 
   // Editable Cells: new data saved in confirmData
   const processRowUpdate = React.useCallback(
@@ -277,6 +294,7 @@ export default function JobsTable() {
       return null;
     }
     const { newRow, oldRow, resolve } = confirmData;
+    console.log("what is row right renderConfirmDialog: ", newRow);
 
     // Case 2: if new input is same as old input, don't show dialog:
     if (JSON.stringify(newRow) == JSON.stringify(oldRow)) {
@@ -297,6 +315,12 @@ export default function JobsTable() {
     );
   };
 
+  /*------------------------------------Delete Row Logic------------------------------------*/
+
+  const handleDelete = (jobId: number) => {
+    setAllJobs(allJobs.filter((row) => row.jobId !== jobId));
+  };
+
   return (
     <React.Fragment>
       <h2>MUI TABLE</h2>
@@ -315,9 +339,6 @@ export default function JobsTable() {
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
             experimentalFeatures={{ newEditingApi: true }}
-            onCellEditCommit={(props, event) => {
-              console.log("what are props: ", props);
-            }}
             processRowUpdate={processRowUpdate}
             onProcessRowUpdateError={handleProcessRowUpdateError}
           />
