@@ -4,7 +4,6 @@ const fetch = require('node-fetch');
 const psPool = require('./psPool')
 const fs = require('fs')
 
-
 const rawdata = fs.readFileSync('oauth.json')
 const oauth = JSON.parse(rawdata);
 
@@ -21,12 +20,20 @@ async function verify(token) {
 }
 
 module.exports = function(app) {
+    /* 
+        Description: Returns the OAuth redirect URL based on current settings obtained through oauth.json
+        Could be constructed by client (in the future) as theres no private information here
+    */
     app.get('/authorize', (req, res) => {
         res.status(200).json({ 
             "url": `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${oauth.client_id}&redirect_uri=${redirect_uri}&scope=openid%20profile`
         });
     });
 
+    /* 
+        Description: Creates or finds authenticated user, build session cookie and returns user data in JSON resposne
+        Endpoint must be called with the query parameter "code" which represents the code grant provided by Google to authenticate
+    */
     app.get('/token', (req, res) => {
         let code = req.query.code;
 
@@ -55,6 +62,7 @@ module.exports = function(app) {
 
             const payload = await verify(token_data.id_token);
 
+            //userId is based on the unique sub identifier provided by Google
             psPool.connect((err, client, done) => {
                 let query = {
                     text: 'SELECT * FROM app_user WHERE "userId" = $1',
@@ -72,6 +80,7 @@ module.exports = function(app) {
                             Math.random() * (999999999 - 1) + 1
                         );
     
+                        //Must call the people API to get data to display in the browser
                         fetch("https://people.googleapis.com/v1/people/me?personFields=names", {
                             method: "get",
                             headers: {
@@ -106,6 +115,8 @@ module.exports = function(app) {
                                         console.log(err.stack);
                                         res.sendStatus(400);
                                     } else {
+                                        //Add a cookie for session to ensure it is parsed on any subsequent request
+                                        res.cookie('session', session);
                                         res.status(200).json(ps_res.rows[0]);
                                     }
                                 })
