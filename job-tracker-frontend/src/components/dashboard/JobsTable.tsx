@@ -57,10 +57,10 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable(params: any) {
+export default function JobsTable(props: any) {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
-  const [session, setSession] = React.useState<any>(params.session);
+  const [session, setSession] = React.useState<any>(props.session);
   const [addJob, setAddJob] = React.useState<Job>({
     rowId: "",
     jobTitle: "",
@@ -73,13 +73,9 @@ export default function JobsTable(params: any) {
     company: "",
     dateApplied: "",
   });
-  // const [posts, setPosts] = React.useState<GridRowsProp>({
-  //   title: "",
-  //   body: "",
-  // });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
-
+  console.log("params are: ", props, props.session);
   const columns: GridColDef[] = [
     {
       field: "jobTitle",
@@ -234,11 +230,12 @@ export default function JobsTable(params: any) {
   React.useEffect(() => {
     console.log("Hello wolrd");
     // Grab data from backend on page load:
-
-    console.log("session is: ", session);
+    setSession( props.session)
+    console.log("session is: ", props.session, session);
     Axios.get(`${baseURL}/jobs`, {
       headers: {
-        Authorization: "Bearer 608872380",
+        // Authorization: "Bearer 608872380",
+        Authorization: `Bearer ${props.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
@@ -296,30 +293,6 @@ export default function JobsTable(params: any) {
       // setPosts(response.data);
       // console.log("2nd localhost res is: ", response.data);
     });
-    // Axios.post(
-    //   "http://localhost:3003/jobs",
-    //   {
-    //     jobTitle: "Programmer",
-    //     priority: 1,
-    //     status: "Active",
-    //     location: "Philadelphia",
-    //     notes: "Applying soon",
-    //     company: "Google",
-    //     salary: "$1,000",
-    //   },
-    //   {
-    //     headers: {
-    //       Authorization: "Bearer 608872380",
-    //     },
-    //   }
-    // ).then((response) => {
-    //   // setPosts(response.data);
-    //   if (response.data.length == 1) {
-    //     setAllJobs([response.data]);
-    //   } else setAllJobs([response.data]);
-
-    //   console.log("localhost res is: ", response.data);
-    // });
     console.log("add job: ", newJob);
     setAllJobs([...allJobs, newJob]);
   };
