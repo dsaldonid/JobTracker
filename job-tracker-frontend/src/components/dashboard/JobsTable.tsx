@@ -124,7 +124,7 @@ export default function JobsTable(params: any) {
     {
       field: "status",
       headerName: "Status",
-      width: 100,
+      width: 130,
       type: "singleSelect",
       valueOptions: [
         "Bookmarked",
@@ -343,8 +343,18 @@ export default function JobsTable(params: any) {
   // User chooses dialog options on editted cell:
   const handleDataChangeDialog = (response: string) => {
     const { newRow, oldRow, resolve } = confirmData;
+    console.log("New row is: ", newRow, newRow.jobId);
     if (response == "Yes") {
-      resolve(newRow);
+      Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
+        headers: {
+          Authorization: "Bearer 608872380",
+        },
+      }).then((response) => {
+        // setAllJobs(response.data);
+        // setPosts(response.data);
+        console.log("3nd localhost res is: ", response.data);
+        resolve(newRow);
+      });
     } else if (response == "No") {
       resolve(oldRow);
     }
