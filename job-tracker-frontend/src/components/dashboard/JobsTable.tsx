@@ -34,7 +34,8 @@ import moment from "moment";
 import { styled } from "@mui/material/styles";
 import { randomId } from "@mui/x-data-grid-generator";
 import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
-
+import Axios from "axios";
+const baseURL = "http://localhost:3003";
 // Interface for Jobs:
 interface Job {
   rowId: GridRowId;
@@ -48,7 +49,6 @@ interface Job {
   company?: string;
   dateApplied?: string | Date;
 }
-
 // Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
 const CustomDisabledTextField = styled(TextField)(() => ({
   ".MuiInputBase-input.Mui-disabled": {
@@ -57,9 +57,10 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable() {
+export default function JobsTable(params: any) {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
+  const [session, setSession] = React.useState<any>(params.session);
   const [addJob, setAddJob] = React.useState<Job>({
     rowId: "",
     jobTitle: "",
@@ -72,6 +73,10 @@ export default function JobsTable() {
     company: "",
     dateApplied: "",
   });
+  // const [posts, setPosts] = React.useState<GridRowsProp>({
+  //   title: "",
+  //   body: "",
+  // });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
 
@@ -227,9 +232,47 @@ export default function JobsTable() {
 
   // Called once on page load:
   React.useEffect(() => {
+    console.log("Hello wolrd");
     // Grab data from backend on page load:
+    // Axios.post(
+    //   "http://localhost:3003/jobs",
+    //   {
+    //     jobTitle: "Programmer",
+    //     priority: 1,
+    //     status: "Active",
+    //     location: "Philadelphia",
+    //     notes: "Applying soon",
+    //     company: "Google",
+    //     salary: "$1,000",
+    //   },
+    //   {
+    //     headers: {
+    //       Authorization: "Bearer 608872380",
+    //     },
+    //   }
+    // ).then((response) => {
+    //   // setPosts(response.data);
+    //   if (response.data.length == 1) {
+    //     setAllJobs([response.data]);
+    //   } else setAllJobs([response.data]);
+
+    //   console.log("localhost res is: ", response.data);
+    // });
+    console.log("session is: ", session);
+    Axios.get(`${baseURL}/jobs`, {
+      headers: {
+        Authorization: "Bearer 608872380",
+      },
+    }).then((response) => {
+      setAllJobs(response.data);
+      // setPosts(response.data);
+      // console.log("2nd localhost res is: ", response.data);
+    });
+
     setAllJobs(tableData);
   }, []);
+
+  // if (!posts) return null;
 
   // Logic to add new job: handleChange and handleSubmit
   const handleAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
