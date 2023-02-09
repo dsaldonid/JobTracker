@@ -99,7 +99,7 @@ function DashboardContent() {
     const params = new URLSearchParams(window.location.search);
     const code_redirect = params.get("code");
     console.log("code_redirect: ", code_redirect);
-    const baseURL2 = `http://localhost:3000/token?code=${code_redirect}`;
+    const baseURL2 = `http://localhost:3003/token?code=${code_redirect}`;
     Axios.get(baseURL2).then((response) => {
       console.log("sessions key is: ", response.data.session);
       setSession(response.data.session);
