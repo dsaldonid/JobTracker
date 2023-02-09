@@ -234,30 +234,7 @@ export default function JobsTable(params: any) {
   React.useEffect(() => {
     console.log("Hello wolrd");
     // Grab data from backend on page load:
-    // Axios.post(
-    //   "http://localhost:3003/jobs",
-    //   {
-    //     jobTitle: "Programmer",
-    //     priority: 1,
-    //     status: "Active",
-    //     location: "Philadelphia",
-    //     notes: "Applying soon",
-    //     company: "Google",
-    //     salary: "$1,000",
-    //   },
-    //   {
-    //     headers: {
-    //       Authorization: "Bearer 608872380",
-    //     },
-    //   }
-    // ).then((response) => {
-    //   // setPosts(response.data);
-    //   if (response.data.length == 1) {
-    //     setAllJobs([response.data]);
-    //   } else setAllJobs([response.data]);
 
-    //   console.log("localhost res is: ", response.data);
-    // });
     console.log("session is: ", session);
     Axios.get(`${baseURL}/jobs`, {
       headers: {
@@ -295,12 +272,54 @@ export default function JobsTable(params: any) {
       dateCreated: addJob.dateCreated,
       priority: addJob.priority,
       status: addJob.status,
-      salary: addJob.salary,
       location: addJob.location,
       notes: addJob.notes,
       company: addJob.company,
       dateApplied: addJob.dateApplied,
+      salary: addJob.salary,
     };
+    Axios.post(`${baseURL}/jobs`, newJob, {
+      headers: {
+        Authorization: "Bearer 608872380",
+      },
+    }).then((response) => {
+      // setAllJobs(response.data);
+      // setPosts(response.data);
+      console.log("3nd localhost res is: ", response.data);
+    });
+    Axios.get(`${baseURL}/jobs`, {
+      headers: {
+        Authorization: "Bearer 608872380",
+      },
+    }).then((response) => {
+      setAllJobs(response.data);
+      // setPosts(response.data);
+      // console.log("2nd localhost res is: ", response.data);
+    });
+    // Axios.post(
+    //   "http://localhost:3003/jobs",
+    //   {
+    //     jobTitle: "Programmer",
+    //     priority: 1,
+    //     status: "Active",
+    //     location: "Philadelphia",
+    //     notes: "Applying soon",
+    //     company: "Google",
+    //     salary: "$1,000",
+    //   },
+    //   {
+    //     headers: {
+    //       Authorization: "Bearer 608872380",
+    //     },
+    //   }
+    // ).then((response) => {
+    //   // setPosts(response.data);
+    //   if (response.data.length == 1) {
+    //     setAllJobs([response.data]);
+    //   } else setAllJobs([response.data]);
+
+    //   console.log("localhost res is: ", response.data);
+    // });
     console.log("add job: ", newJob);
     setAllJobs([...allJobs, newJob]);
   };
