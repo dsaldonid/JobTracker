@@ -382,7 +382,22 @@ export default function JobsTable(params: any) {
   /*------------------------------------Delete Row Logic------------------------------------*/
 
   const handleDelete = (jobId: number) => {
-    setAllJobs(allJobs.filter((row) => row.jobId !== jobId));
+    // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
+    const delete_record = { jobId: jobId };
+    Axios.delete(`${baseURL}/jobs/${jobId}`, {
+      headers: {
+        Authorization: "Bearer 608872380",
+      },
+    }).then((response) => {
+      Axios.get(`${baseURL}/jobs`, {
+        headers: {
+          Authorization: "Bearer 608872380",
+        },
+      }).then((response) => {
+        setAllJobs(response.data);
+      });
+      console.log("3nd localhost res is: ", response.data);
+    });
   };
 
   return (
