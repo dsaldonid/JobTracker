@@ -1,8 +1,8 @@
-const express = require("express")
-const cors = require("cors")
-const morgan = require("morgan")
-const authRoutes = require("./routes/altAuth")
-const { NotFoundError } = require("./utils/errors")
+const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
+const authRoutes = require("./routes/altAuth");
+const { NotFoundError } = require("./utils/errors");
 const cookieParser = require("cookie-parser");
 
 const fs = require('fs')
@@ -42,7 +42,6 @@ function sessionVerifier(req, res, next) {
     });
     return;
   }
-  console.log("parse and stringy: ", req);
   const auth_session = req.headers.authorization.substring("Bearer ".length);
   console.log("what are the req cookies: ", req.cookies, auth_session);
   console.log(
@@ -63,7 +62,7 @@ function sessionVerifier(req, res, next) {
       done();
 
       if (err || ps_res.rows.length === 0) {
-        console.log(err.stack);
+        if (err) console.log(err.stack);
 
                 res.status(401).json({ 'Error': 'Unauthorized due to invalid session' });
       } else {
