@@ -57,10 +57,9 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable(props: any) {
+export default function JobsTable(props) {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
-  const [session, setSession] = React.useState<any>(props.session);
   const [addJob, setAddJob] = React.useState<Job>({
     rowId: "",
     jobTitle: "",
@@ -75,7 +74,6 @@ export default function JobsTable(props: any) {
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
-  console.log("params are: ", props, props.session);
   const columns: GridColDef[] = [
     {
       field: "jobTitle",
@@ -230,12 +228,12 @@ export default function JobsTable(props: any) {
   React.useEffect(() => {
     console.log("Hello wolrd");
     // Grab data from backend on page load:
-    setSession( props.session)
-    console.log("session is: ", props.session, session);
+    console.log("gashboard session is: ", props, props.cookie.session);
     Axios.get(`${baseURL}/jobs`, {
       headers: {
-        // Authorization: "Bearer 608872380",
-        Authorization: `Bearer ${props.session}`,
+        // Change here:
+        // Authorization: "Bearer 248743843",
+        Authorization: `Bearer ${props.cookie.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);

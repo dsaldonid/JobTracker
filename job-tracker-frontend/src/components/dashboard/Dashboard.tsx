@@ -101,7 +101,11 @@ function DashboardContent() {
     console.log("code_redirect: ", code_redirect);
     const baseURL2 = `http://localhost:3003/token?code=${code_redirect}`;
     Axios.get(baseURL2).then((response) => {
-      console.log("sessions key is: ", response.data.session);
+      console.log(
+        "sessions key is: ",
+        response.data.session,
+        typeof response.data.session
+      );
       setSession(response.data.session);
     });
     // let { tokens } = await oauth2Client.getToken(q.code);
@@ -114,7 +118,7 @@ function DashboardContent() {
         return (
           <Grid item xs={12}>
             <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-              <JobsTable />
+              <JobsTable cookie={{ session }} />
             </Paper>
           </Grid>
         );
@@ -137,6 +141,7 @@ function DashboardContent() {
       default:
         return (
           <Grid item xs={12} md={12} lg={12}>
+            <h1>The session is {session}</h1>;
             <Paper
               sx={{
                 p: 2,
@@ -155,7 +160,7 @@ function DashboardContent() {
                 mt: 2,
               }}
             >
-              <JobsTable session={session} />
+              <JobsTable cookie={session} />
             </Paper>
             <Paper
               sx={{
