@@ -49,6 +49,11 @@ interface Job {
   company?: string;
   dateApplied?: string | Date;
 }
+interface PropTypes {
+  cookie: {
+    session: number;
+  };
+}
 // Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
 const CustomDisabledTextField = styled(TextField)(() => ({
   ".MuiInputBase-input.Mui-disabled": {
@@ -57,7 +62,7 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable(props) {
+export default function JobsTable({ cookie }: PropTypes) {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
@@ -89,6 +94,7 @@ export default function JobsTable(props) {
           InputProps={{ disableUnderline: true }}
           maxRows={4}
           disabled={true}
+          // Delete if not needed later:
           // InputLabelProps={{
           //   readOnly: true,
           // }}
@@ -190,6 +196,7 @@ export default function JobsTable(props) {
       headerName: "Date Applied",
       width: 100,
       sortable: true,
+      // Date Styling addon- Delete if not needed later
       // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
     },
     {
@@ -215,8 +222,8 @@ export default function JobsTable(props) {
       },
     },
   ];
-
   const dataGridStyles: SxProps = {
+    // Required for Data table creation:
     height: 500,
   };
 
@@ -224,35 +231,32 @@ export default function JobsTable(props) {
     event.preventDefault();
   }
 
-  // Called once on page load:
   React.useEffect(() => {
-    console.log("Hello wolrd");
+    // console.log("Hello from JobsTable");
     // Grab data from backend on page load:
-    console.log("gashboard session is: ", props, props.cookie.session);
     Axios.get(`${baseURL}/jobs`, {
       headers: {
-        // Change here:
-        // Authorization: "Bearer 248743843",
-        Authorization: `Bearer ${props.cookie.session}`,
+        // Formatted as "Bearer 248743843", where 248743843 is our session key:
+        Authorization: `Bearer ${cookie.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
-      // setPosts(response.data);
-      // console.log("2nd localhost res is: ", response.data);
     });
 
     setAllJobs(tableData);
   }, []);
 
-  // if (!posts) return null;
+  if (allJobs) return null;
 
-  // Logic to add new job: handleChange and handleSubmit
-  const handleAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /*------------------------------------Create/Add Row Logic------------------------------------*/
+
+  const handleChangeAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-
+    // Store name attribute value and cell value as new field entry:
     const inputField = e.target.getAttribute("name");
     const inputValue = e.target.value;
     const newJob = { ...addJob };
+    // Typescript typing error workaround:
     // https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
     newJob[inputField as keyof typeof newJob] = inputValue;
     setAddJob(newJob);
@@ -275,23 +279,20 @@ export default function JobsTable(props) {
     };
     Axios.post(`${baseURL}/jobs`, newJob, {
       headers: {
-        Authorization: "Bearer 608872380",
+        Authorization: `Bearer ${cookie.session}`,
       },
     }).then((response) => {
-      // setAllJobs(response.data);
-      // setPosts(response.data);
-      console.log("3nd localhost res is: ", response.data);
+      // console.log("3nd localhost res is: ", response.data);
     });
     Axios.get(`${baseURL}/jobs`, {
       headers: {
-        Authorization: "Bearer 608872380",
+        Authorization: `Bearer ${cookie.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
-      // setPosts(response.data);
       // console.log("2nd localhost res is: ", response.data);
     });
-    console.log("add job: ", newJob);
+    // console.log("add job: ", newJob);
     setAllJobs([...allJobs, newJob]);
   };
 
@@ -314,11 +315,12 @@ export default function JobsTable(props) {
   // User chooses dialog options on editted cell:
   const handleDataChangeDialog = (response: string) => {
     const { newRow, oldRow, resolve } = confirmData;
-    console.log("New row is: ", newRow, newRow.jobId);
+    // console.log("New row is: ", newRow, newRow.jobId);
+    // If user responds yes, send new row to database, else resolve old row back:
     if (response == "Yes") {
       Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
         headers: {
-          Authorization: "Bearer 608872380",
+          Authorization: `Bearer ${cookie.session}`,
         },
       }).then((response) => {
         // setAllJobs(response.data);
@@ -367,12 +369,12 @@ export default function JobsTable(props) {
     const delete_record = { jobId: jobId };
     Axios.delete(`${baseURL}/jobs/${jobId}`, {
       headers: {
-        Authorization: "Bearer 608872380",
+        Authorization: `Bearer ${cookie.session}`,
       },
     }).then((response) => {
       Axios.get(`${baseURL}/jobs`, {
         headers: {
-          Authorization: "Bearer 608872380",
+          Authorization: `Bearer ${cookie.session}`,
         },
       }).then((response) => {
         setAllJobs(response.data);
@@ -410,7 +412,7 @@ export default function JobsTable(props) {
             name="jobTitle"
             required
             placeholder="Enter a job name.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -422,14 +424,14 @@ export default function JobsTable(props) {
             // value={addJob.job_location}
             required
             placeholder="Enter location.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
           ></TextField>
           <TextField
             type="text"
             name="priority"
             // value={addJob.date_posted}
             placeholder="Enter priority.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -440,7 +442,7 @@ export default function JobsTable(props) {
             // value={addJob.salary_est}
             required
             placeholder="Enter status.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -450,7 +452,7 @@ export default function JobsTable(props) {
             // value={addJob.salary_est}
             required
             placeholder="Enter salary.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -460,7 +462,7 @@ export default function JobsTable(props) {
             // value={addJob.salary_est}
             required
             placeholder="Enter location.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -471,7 +473,7 @@ export default function JobsTable(props) {
             // value={addJob.salary_est}
             required
             placeholder="Enter notes.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -481,7 +483,7 @@ export default function JobsTable(props) {
             // value={addJob.salary_est}
             required
             placeholder="Enter a company name.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -491,7 +493,7 @@ export default function JobsTable(props) {
             // value={addJob.salary_est}
             required
             placeholder="Enter a date applied.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
