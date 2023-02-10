@@ -79,6 +79,10 @@ export default function JobsTable({ cookie }: PropTypes) {
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
+
+  // This creates the options/details for headers & their associated column:
+    // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
+    // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
   const columns: GridColDef[] = [
     {
       field: "jobTitle",
@@ -86,6 +90,8 @@ export default function JobsTable({ cookie }: PropTypes) {
       width: 200,
       editable: true,
       sortable: true,
+      // This will render the cell how you want it. Instead of a regular cell, I want to create a textfield so I don't have to scroll 
+      // right when the message is too long(textfield wraps text around)
       renderCell: (params) => (
         <CustomDisabledTextField
           multiline
@@ -126,6 +132,7 @@ export default function JobsTable({ cookie }: PropTypes) {
       headerName: "Status",
       width: 130,
       type: "singleSelect",
+      // I want this header's column to have options we can pick from:
       valueOptions: [
         "Bookmarked",
         "Applying",
@@ -223,7 +230,7 @@ export default function JobsTable({ cookie }: PropTypes) {
     },
   ];
   const dataGridStyles: SxProps = {
-    // Required for Data table creation:
+    // Required for Data table creation, if data grid doesn't have a height, it errors out(MUI bug):
     height: 500,
   };
 
@@ -299,6 +306,8 @@ export default function JobsTable({ cookie }: PropTypes) {
   /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
 
   // Editable Cells: new data saved in confirmData
+  // the datagrid API option that I enabled saves the "current row" and "the row before it was edited" so we can access
+  // them and pick which one to render based on user confirmation:
   const processRowUpdate = React.useCallback(
     (newRow: GridRowModel, oldRow: GridRowModel) =>
       new Promise<GridRowModel>((resolve, reject) => {
@@ -383,6 +392,12 @@ export default function JobsTable({ cookie }: PropTypes) {
     });
   };
 
+  // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though 
+  // here the child component(datagrid), is an API in MUI. 
+      // columns: what the headers and associated column configuations are
+      // rows: the actual data for each row(it does the map function)
+      // Update stuff is a little weird-- requires making a promise and resolving it 
+  // After that, it is just the regular Form Submit stuff
   return (
     <React.Fragment>
       <h2>MUI TABLE</h2>
