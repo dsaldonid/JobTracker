@@ -253,7 +253,7 @@ export default function JobsTable({ cookie }: PropTypes) {
     setAllJobs(tableData);
   }, []);
 
-  if (allJobs) return null;
+  //if (allJobs) return null;
 
   /*------------------------------------Create/Add Row Logic------------------------------------*/
 
