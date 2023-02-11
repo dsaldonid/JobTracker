@@ -32,9 +32,9 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { observer } from "mobx-react-lite";
 import { AppPageState } from "../app/types";
 import Copyright from "../shared/Copyright";
-
+import Axios from "axios";
 const drawerWidth: number = 240;
-
+const baseURL = "http://localhost:3000";
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
@@ -88,10 +88,29 @@ const mdTheme = createTheme();
 function DashboardContent() {
   const [open, setOpen] = React.useState<boolean>(true);
   const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
+  const [session, setSession] = React.useState<string>("");
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  React.useEffect(() => {
+    console.log(window.location.search);
+    const params = new URLSearchParams(window.location.search);
+    const code_redirect = params.get("code");
+    console.log("code_redirect: ", code_redirect);
+    const baseURL2 = `http://localhost:3003/token?code=${code_redirect}`;
+    Axios.get(baseURL2).then((response) => {
+      console.log(
+        "sessions key is: ",
+        response.data.session,
+        typeof response.data.session
+      );
+      setSession(response.data.session);
+    });
+    // let { tokens } = await oauth2Client.getToken(q.code);
+    // console.log("print token: ", tokens);
+  }, []);
 
   const pageContent = () => {
     switch (pageType) {
@@ -99,7 +118,7 @@ function DashboardContent() {
         return (
           <Grid item xs={12}>
             <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-              <JobsTable />
+              <JobsTable cookie={{ session }} />
             </Paper>
           </Grid>
         );
@@ -122,6 +141,7 @@ function DashboardContent() {
       default:
         return (
           <Grid item xs={12} md={12} lg={12}>
+            <h1>The session is {session}</h1>;
             <Paper
               sx={{
                 p: 2,
@@ -140,7 +160,7 @@ function DashboardContent() {
                 mt: 2,
               }}
             >
-              <JobsTable />
+              <JobsTable cookie={session} />
             </Paper>
             <Paper
               sx={{

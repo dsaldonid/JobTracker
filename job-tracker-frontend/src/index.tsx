@@ -14,11 +14,11 @@ const store: AppStore = new AppStore();
 export const AppContext = React.createContext(store);
 
 root.render(
-  <React.StrictMode>
-    <AppContext.Provider value={store}>
-      <App />
-    </AppContext.Provider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <AppContext.Provider value={store}>
+    <App />
+  </AppContext.Provider>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

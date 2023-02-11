@@ -34,7 +34,8 @@ import moment from "moment";
 import { styled } from "@mui/material/styles";
 import { randomId } from "@mui/x-data-grid-generator";
 import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
-
+import Axios from "axios";
+const baseURL = "http://localhost:3003";
 // Interface for Jobs:
 interface Job {
   rowId: GridRowId;
@@ -48,7 +49,11 @@ interface Job {
   company?: string;
   dateApplied?: string | Date;
 }
-
+interface PropTypes {
+  cookie: {
+    session: number;
+  };
+}
 // Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
 const CustomDisabledTextField = styled(TextField)(() => ({
   ".MuiInputBase-input.Mui-disabled": {
@@ -57,7 +62,7 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable() {
+export default function JobsTable({ cookie }: PropTypes) {
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
@@ -75,6 +80,9 @@ export default function JobsTable() {
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
 
+  // This creates the options/details for headers & their associated column:
+    // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
+    // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
   const columns: GridColDef[] = [
     {
       field: "jobTitle",
@@ -82,6 +90,8 @@ export default function JobsTable() {
       width: 200,
       editable: true,
       sortable: true,
+      // This will render the cell how you want it. Instead of a regular cell, I want to create a textfield so I don't have to scroll 
+      // right when the message is too long(textfield wraps text around)
       renderCell: (params) => (
         <CustomDisabledTextField
           multiline
@@ -90,6 +100,7 @@ export default function JobsTable() {
           InputProps={{ disableUnderline: true }}
           maxRows={4}
           disabled={true}
+          // Delete if not needed later:
           // InputLabelProps={{
           //   readOnly: true,
           // }}
@@ -119,8 +130,9 @@ export default function JobsTable() {
     {
       field: "status",
       headerName: "Status",
-      width: 100,
+      width: 130,
       type: "singleSelect",
+      // I want this header's column to have options we can pick from:
       valueOptions: [
         "Bookmarked",
         "Applying",
@@ -191,6 +203,7 @@ export default function JobsTable() {
       headerName: "Date Applied",
       width: 100,
       sortable: true,
+      // Date Styling addon- Delete if not needed later
       // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
     },
     {
@@ -216,8 +229,8 @@ export default function JobsTable() {
       },
     },
   ];
-
   const dataGridStyles: SxProps = {
+    // Required for Data table creation, if data grid doesn't have a height, it errors out(MUI bug):
     height: 500,
   };
 
@@ -225,19 +238,32 @@ export default function JobsTable() {
     event.preventDefault();
   }
 
-  // Called once on page load:
   React.useEffect(() => {
+    // console.log("Hello from JobsTable");
     // Grab data from backend on page load:
+    Axios.get(`${baseURL}/jobs`, {
+      headers: {
+        // Formatted as "Bearer 248743843", where 248743843 is our session key:
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      setAllJobs(response.data);
+    });
+
     setAllJobs(tableData);
   }, []);
 
-  // Logic to add new job: handleChange and handleSubmit
-  const handleAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
+  //if (allJobs) return null;
 
+  /*------------------------------------Create/Add Row Logic------------------------------------*/
+
+  const handleChangeAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    // Store name attribute value and cell value as new field entry:
     const inputField = e.target.getAttribute("name");
     const inputValue = e.target.value;
     const newJob = { ...addJob };
+    // Typescript typing error workaround:
     // https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
     newJob[inputField as keyof typeof newJob] = inputValue;
     setAddJob(newJob);
@@ -252,19 +278,36 @@ export default function JobsTable() {
       dateCreated: addJob.dateCreated,
       priority: addJob.priority,
       status: addJob.status,
-      salary: addJob.salary,
       location: addJob.location,
       notes: addJob.notes,
       company: addJob.company,
       dateApplied: addJob.dateApplied,
+      salary: addJob.salary,
     };
-    console.log("add job: ", newJob);
+    Axios.post(`${baseURL}/jobs`, newJob, {
+      headers: {
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      // console.log("3nd localhost res is: ", response.data);
+    });
+    Axios.get(`${baseURL}/jobs`, {
+      headers: {
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      setAllJobs(response.data);
+      // console.log("2nd localhost res is: ", response.data);
+    });
+    // console.log("add job: ", newJob);
     setAllJobs([...allJobs, newJob]);
   };
 
   /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
 
   // Editable Cells: new data saved in confirmData
+  // the datagrid API option that I enabled saves the "current row" and "the row before it was edited" so we can access
+  // them and pick which one to render based on user confirmation:
   const processRowUpdate = React.useCallback(
     (newRow: GridRowModel, oldRow: GridRowModel) =>
       new Promise<GridRowModel>((resolve, reject) => {
@@ -281,8 +324,19 @@ export default function JobsTable() {
   // User chooses dialog options on editted cell:
   const handleDataChangeDialog = (response: string) => {
     const { newRow, oldRow, resolve } = confirmData;
+    // console.log("New row is: ", newRow, newRow.jobId);
+    // If user responds yes, send new row to database, else resolve old row back:
     if (response == "Yes") {
-      resolve(newRow);
+      Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
+        headers: {
+          Authorization: `Bearer ${cookie.session}`,
+        },
+      }).then((response) => {
+        // setAllJobs(response.data);
+        // setPosts(response.data);
+        console.log("3nd localhost res is: ", response.data);
+        resolve(newRow);
+      });
     } else if (response == "No") {
       resolve(oldRow);
     }
@@ -320,9 +374,30 @@ export default function JobsTable() {
   /*------------------------------------Delete Row Logic------------------------------------*/
 
   const handleDelete = (jobId: number) => {
-    setAllJobs(allJobs.filter((row) => row.jobId !== jobId));
+    // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
+    const delete_record = { jobId: jobId };
+    Axios.delete(`${baseURL}/jobs/${jobId}`, {
+      headers: {
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      Axios.get(`${baseURL}/jobs`, {
+        headers: {
+          Authorization: `Bearer ${cookie.session}`,
+        },
+      }).then((response) => {
+        setAllJobs(response.data);
+      });
+      console.log("3nd localhost res is: ", response.data);
+    });
   };
 
+  // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though 
+  // here the child component(datagrid), is an API in MUI. 
+      // columns: what the headers and associated column configuations are
+      // rows: the actual data for each row(it does the map function)
+      // Update stuff is a little weird-- requires making a promise and resolving it 
+  // After that, it is just the regular Form Submit stuff
   return (
     <React.Fragment>
       <h2>MUI TABLE</h2>
@@ -352,7 +427,7 @@ export default function JobsTable() {
             name="jobTitle"
             required
             placeholder="Enter a job name.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -364,14 +439,14 @@ export default function JobsTable() {
             // value={addJob.job_location}
             required
             placeholder="Enter location.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
           ></TextField>
           <TextField
             type="text"
             name="priority"
             // value={addJob.date_posted}
             placeholder="Enter priority.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -382,7 +457,7 @@ export default function JobsTable() {
             // value={addJob.salary_est}
             required
             placeholder="Enter status.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -392,7 +467,7 @@ export default function JobsTable() {
             // value={addJob.salary_est}
             required
             placeholder="Enter salary.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -402,7 +477,7 @@ export default function JobsTable() {
             // value={addJob.salary_est}
             required
             placeholder="Enter location.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -413,7 +488,7 @@ export default function JobsTable() {
             // value={addJob.salary_est}
             required
             placeholder="Enter notes.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -423,7 +498,7 @@ export default function JobsTable() {
             // value={addJob.salary_est}
             required
             placeholder="Enter a company name.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -433,7 +508,7 @@ export default function JobsTable() {
             // value={addJob.salary_est}
             required
             placeholder="Enter a date applied.."
-            onChange={handleAddJob}
+            onChange={handleChangeAddJob}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>

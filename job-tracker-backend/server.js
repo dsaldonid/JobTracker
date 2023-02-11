@@ -1,8 +1,8 @@
-const express = require("express")
-const cors = require("cors")
-const morgan = require("morgan")
-const authRoutes = require("./routes/altAuth")
-const { NotFoundError } = require("./utils/errors")
+const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
+const authRoutes = require("./routes/altAuth");
+const { NotFoundError } = require("./utils/errors");
 const cookieParser = require("cookie-parser");
 
 const fs = require('fs')
@@ -35,26 +35,41 @@ app.use(cookieParser())
 
 //Middleware function to verify sessionId and attach user information to request
 function sessionVerifier(req, res, next) {
-    const sessionId = req.cookies['session'];
+  console.log("auth: ", req.headers);
+  if (!req.headers.authorization) {
+    res.status(401).json({
+      Error: "Unauthorized due to invalid session: insert authorization header",
+    });
+    return;
+  }
+  const auth_session = req.headers.authorization.substring("Bearer ".length);
+  console.log("what are the req cookies: ", req.cookies, auth_session);
+  console.log(
+    "what are the auth_session cookies: ",
+    auth_session,
+    typeof auth_session
+  );
+  const sessionId = req.cookies["session"];
 
-    psPool.connect((err, client, done) => {
-        let query = {
-            text: 'SELECT "userId" FROM app_user WHERE session = $1',
-            values: [sessionId]
-        }
+  psPool.connect((err, client, done) => {
+    let query = {
+      text: 'SELECT "userId" FROM app_user WHERE session = $1',
+      //   values: [sessionId],
+      values: [auth_session],
+    };
 
-        client.query(query, (err, ps_res) => {
-            done();
+    client.query(query, (err, ps_res) => {
+      done();
 
-            if (err || ps_res.rows.length === 0) {
-                console.log(err.stack);
+      if (err || ps_res.rows.length === 0) {
+        if (err) console.log(err.stack);
 
                 res.status(401).json({ 'Error': 'Unauthorized due to invalid session' });
-            } else {
-                //req.userId can be used in downstream calls after middleware is used
-                req.userId = ps_res.rows[0].userId;
+      } else {
+        //req.userId can be used in downstream calls after middleware is used
+        req.userId = ps_res.rows[0].userId;
                 next()
-            }
+      }
         })
     })
 }
@@ -69,7 +84,7 @@ app.use(express.json());
 require('./jobs')(app);
 
 // Will change when we move our app to GCP
-const port = 3000
+const port = 3003;
 
 // If no routes are touched then we will get a 404 error
 app.use((req, res, next) => {
@@ -81,12 +96,12 @@ app.use((err, req, res, next) => {
     const status = err.status || 500
     const message = err. message
 
-    return res.status(status).json({
-        error: { message, status },
+  return res.status(status).json({
+    error: { message, status },
     })
 })
 
-const PORT = 3001
+const PORT = 3003;
 app.listen(PORT, () => {
     console.log('Server listening in port ' + PORT)
 })
