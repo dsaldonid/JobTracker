@@ -11,6 +11,10 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import { observer } from "mobx-react-lite";
+import AppStore from "../app/AppStore";
+import { AppContext } from "../../index"
+import LinearProgress from '@mui/material/LinearProgress';
 import {
   Autocomplete,
   Button,
@@ -49,11 +53,7 @@ interface Job {
   company?: string;
   dateApplied?: string | Date;
 }
-interface PropTypes {
-  cookie: {
-    session: number;
-  };
-}
+
 // Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
 const CustomDisabledTextField = styled(TextField)(() => ({
   ".MuiInputBase-input.Mui-disabled": {
@@ -62,7 +62,8 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable({ cookie }: PropTypes) {
+const JobsTable: React.FC = observer(() => {
+  const store: AppStore = React.useContext(AppContext);
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
@@ -79,6 +80,7 @@ export default function JobsTable({ cookie }: PropTypes) {
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
+  const [loading, setLoading] = React.useState<boolean>(true);
 
   // This creates the options/details for headers & their associated column:
     // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
@@ -241,16 +243,17 @@ export default function JobsTable({ cookie }: PropTypes) {
   React.useEffect(() => {
     // console.log("Hello from JobsTable");
     // Grab data from backend on page load:
+    setLoading(true);
     Axios.get(`${baseURL}/jobs`, {
       headers: {
         // Formatted as "Bearer 248743843", where 248743843 is our session key:
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
+      setLoading(false);
     });
 
-    setAllJobs(tableData);
   }, []);
 
   //if (allJobs) return null;
@@ -286,14 +289,14 @@ export default function JobsTable({ cookie }: PropTypes) {
     };
     Axios.post(`${baseURL}/jobs`, newJob, {
       headers: {
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       // console.log("3nd localhost res is: ", response.data);
     });
     Axios.get(`${baseURL}/jobs`, {
       headers: {
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
@@ -329,7 +332,7 @@ export default function JobsTable({ cookie }: PropTypes) {
     if (response == "Yes") {
       Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
         headers: {
-          Authorization: `Bearer ${cookie.session}`,
+          Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
         // setAllJobs(response.data);
@@ -378,12 +381,12 @@ export default function JobsTable({ cookie }: PropTypes) {
     const delete_record = { jobId: jobId };
     Axios.delete(`${baseURL}/jobs/${jobId}`, {
       headers: {
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       Axios.get(`${baseURL}/jobs`, {
         headers: {
-          Authorization: `Bearer ${cookie.session}`,
+          Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
         setAllJobs(response.data);
@@ -391,6 +394,10 @@ export default function JobsTable({ cookie }: PropTypes) {
       console.log("3nd localhost res is: ", response.data);
     });
   };
+
+  if(loading) {
+    return <LinearProgress />
+  }
 
   // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though 
   // here the child component(datagrid), is an API in MUI. 
@@ -520,7 +527,9 @@ export default function JobsTable({ cookie }: PropTypes) {
       </TableContainer>
     </React.Fragment>
   );
-}
+})
+
+export default JobsTable;
 
 // https://mockaroo.com/
 const tableData: GridRowsProp = [

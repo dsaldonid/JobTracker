@@ -23,7 +23,7 @@ const AppContainer: React.FC= observer(()=> {
 
     return (
         <>
-            {renderContent()}
+            <Dashboard />
         </>
     );
 });
