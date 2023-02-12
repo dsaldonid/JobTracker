@@ -10,27 +10,28 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-const baseURL = "http://localhost:3003/authorize";
+// const baseURL = "http://localhost:3003/authorize";
+const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com/authorize";
 function Login() {
   const [url_oauth, setUrl_oauth] = React.useState<string>("");
 
   const authorizeUser = () => {
-    Axios.get(baseURL).then((response) => {
-      // Move client to URL of redirect site>
-      window.location.replace(response.data.url);
-      const url = new URL(response.data.url);
-      const codeId = url.searchParams.get("code");
-    });
+    //   Axios.get(baseURL).then((response) => {
+    //     // Move client to URL of redirect site>
+    //     window.location.replace(response.data.url);
+    //     const url = new URL(response.data.url);
+    //     const codeId = url.searchParams.get("code");
+    //   });
+    // };
+    // Backup: Redirect is automatic so delete this later:
+    // const tokenUser = () => {
+    //   console.log("window.location.href: ", window.location.href);
+    //   console.log("next call..");
   };
-  // Backup: Redirect is automatic so delete this later:
-  // const tokenUser = () => {
-  //   console.log("window.location.href: ", window.location.href);
-  //   console.log("next call..");
-  // };
   return (
     <>
       <Box sx={{ maxWidth: "md" }}>
-        <Typography>Job Tracker Website</Typography>
+        <Typography>Job Tracker Website HELLO</Typography>
         <Button onClick={authorizeUser}>Sign in with Google</Button>
       </Box>
       {/* <a href={url_oauth}>Authorize to get Code</a> */}

@@ -37,6 +37,8 @@ import AppStore from "../app/AppStore";
 import SignInPage from "../authentication/SignInPage";
 const drawerWidth: number = 240;
 const baseURL = "http://localhost:3000";
+// const baseURL = "https://jobtracker-376008.uw.r.appspot.com/";
+const serverURL = "https://job-tracker-postgressql.uw.r.appspot.com/";
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
@@ -87,243 +89,238 @@ const Drawer = styled(MuiDrawer, {
 
 const mdTheme = createTheme();
 
-
-
 const Dashboard: React.FC = observer(() => {
-    const store: AppStore = React.useContext(AppContext);
+  const store: AppStore = React.useContext(AppContext);
 
-        const [open, setOpen] = React.useState<boolean>(true);
-        const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
-        const [codeRedirect] =
-        React.useState<string | null>((new URLSearchParams(window.location.search)).get("code"));
-        const toggleDrawer = () => {
-            setOpen(!open);
-        };
+  const [open, setOpen] = React.useState<boolean>(true);
+  const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
+  const [codeRedirect] = React.useState<string | null>(
+    new URLSearchParams(window.location.search).get("code")
+  );
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
 
-        React.useEffect(() => {
-            console.log(window.location.search);
+  React.useEffect(() => {
+    console.log(window.location.search);
 
-            if(codeRedirect) {
-                console.log("code_redirect: ", codeRedirect);
-                const baseURL2 = `http://localhost:3003/token?code=${codeRedirect}`;
-                Axios.get(baseURL2).then((response) => {
-                    console.log(
-                        "sessions key is: ",
-                        response.data.session,
-                        typeof response.data.session
-                    );
-                    store.setSession(response.data.session);
-                });
-            }
-            
-            // let { tokens } = await oauth2Client.getToken(q.code);
-            // console.log("print token: ", tokens);
-        }, []);
-
-        const pageContent = () => {
-            switch (pageType) {
-                case PageType.JOBS:
-                    return (
-                        <Grid item xs={12}>
-                            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                            {
-                                store.session && (<JobsTable />)
-                            }
-                            </Paper>
-                        </Grid>
-                    );
-                case PageType.CONTACTS:
-                    return (
-                        <Grid item xs={12}>
-                            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                                <ContactsTable />
-                            </Paper>
-                        </Grid>
-                    );
-                case PageType.SKILLS:
-                    return (
-                        <Grid item xs={12}>
-                            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                                <SkillsTable />
-                            </Paper>
-                        </Grid>
-                    );
-                default:
-                    return (
-                        <Grid item xs={12} md={12} lg={12}>
-                            <Paper
-                                sx={{
-                                    p: 2,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    height: 240,
-                                }}
-                            >
-                                <Chart />
-                            </Paper>
-                            <Paper
-                                sx={{
-                                    p: 2,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    mt: 2,
-                                }}
-                            >
-                                {
-                                    store.session && (<JobsTable />)
-                                }
-                            </Paper>
-                            <Paper
-                                sx={{
-                                    p: 2,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    mt: 2,
-                                }}
-                            >
-                                <ContactsTable />
-                            </Paper>
-                        </Grid>
-                    );
-            }
-        };
-
-        if(!codeRedirect) {
-            return (<SignInPage />);
-        }
-
-        return (
-                    <ThemeProvider theme={mdTheme}>
-                        <Box sx={{ display: "flex" }}>
-                            <CssBaseline />
-                            <AppBar position="absolute" open={open}>
-                                <Toolbar
-                                    sx={{
-                                        pr: "24px", // keep right padding when drawer closed
-                                    }}
-                                >
-                                    <IconButton
-                                        edge="start"
-                                        color="inherit"
-                                        aria-label="open drawer"
-                                        onClick={toggleDrawer}
-                                        sx={{
-                                            marginRight: "36px",
-                                            ...(open && { display: "none" }),
-                                        }}
-                                    >
-                                        <MenuIcon />
-                                    </IconButton>
-                                    <Typography
-                                        component="h1"
-                                        variant="h6"
-                                        color="inherit"
-                                        noWrap
-                                        sx={{ flexGrow: 1 }}
-                                    >
-                                        Job Tracker
-                                    </Typography>
-                                </Toolbar>
-                            </AppBar>
-                            <Drawer variant="permanent" open={open}>
-                                <Toolbar
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "flex-end",
-                                        px: [1],
-                                    }}
-                                >
-                                    <IconButton onClick={toggleDrawer}>
-                                        <ChevronLeftIcon />
-                                    </IconButton>
-                                </Toolbar>
-                                <Divider />
-                                <List component="nav">
-                                    <React.Fragment>
-                                        <ListItemButton
-                                            onClick={() => {
-                                                setPageType(PageType.DASHBOARD);
-                                            }}
-                                            selected={pageType === PageType.DASHBOARD}
-                                        >
-                                            <ListItemIcon>
-                                                <DashboardIcon />
-                                            </ListItemIcon>
-                                            <ListItemText primary="Dashboard" />
-                                        </ListItemButton>
-                                        <ListItemButton
-                                            onClick={() => {
-                                                setPageType(PageType.JOBS);
-                                            }}
-                                            selected={pageType === PageType.JOBS}
-                                        >
-                                            <ListItemIcon>
-                                                <WorkIcon />
-                                            </ListItemIcon>
-                                            <ListItemText primary="Jobs" />
-                                        </ListItemButton>
-                                        <ListItemButton
-                                            onClick={() => {
-                                                setPageType(PageType.CONTACTS);
-                                            }}
-                                            selected={pageType === PageType.CONTACTS}
-                                        >
-                                            <ListItemIcon>
-                                                <PeopleIcon />
-                                            </ListItemIcon>
-                                            <ListItemText primary="Contacts" />
-                                        </ListItemButton>
-                                        <ListItemButton
-                                            onClick={() => {
-                                                setPageType(PageType.SKILLS);
-                                            }}
-                                            selected={pageType === PageType.SKILLS}
-                                        >
-                                            <ListItemIcon>
-                                                <BoltIcon />
-                                            </ListItemIcon>
-                                            <ListItemText primary="Skills" />
-                                        </ListItemButton>
-                                        <Divider sx={{ my: 1 }} />
-                                        <ListItemButton
-                                            onClick={() => {
-                                                window.location.replace(baseURL);
-                                            }}
-                                        >
-                                            <ListItemIcon>
-                                                <LogoutIcon />
-                                            </ListItemIcon>
-                                            <ListItemText primary="Logout" />
-                                        </ListItemButton>
-                                    </React.Fragment>
-                                </List>
-                            </Drawer>
-                            <Box
-                                component="main"
-                                sx={{
-                                    backgroundColor: (theme) =>
-                                        theme.palette.mode === "light"
-                                            ? theme.palette.grey[100]
-                                            : theme.palette.grey[900],
-                                    flexGrow: 1,
-                                    height: "100vh",
-                                    overflow: "auto",
-                                }}
-                            >
-                                <Toolbar />
-                                <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                                    <Grid container spacing={3}>
-                                        {/* Recent Orders */}
-                                        {pageContent()}
-                                    </Grid>
-                                    <Copyright />
-                                </Container>
-                            </Box>
-                        </Box>
-                    </ThemeProvider>
+    if (codeRedirect) {
+      console.log("code_redirect: ", codeRedirect);
+      // const baseURL2 = `http://localhost:3003/token?code=${codeRedirect}`;
+      const baseURL2 = `${serverURL}/token?code=${codeRedirect}`;
+      Axios.get(baseURL2).then((response) => {
+        console.log(
+          "sessions key is: ",
+          response.data.session,
+          typeof response.data.session
         );
+        store.setSession(response.data.session);
+      });
+    }
 
+    // let { tokens } = await oauth2Client.getToken(q.code);
+    // console.log("print token: ", tokens);
+  }, []);
+
+  const pageContent = () => {
+    switch (pageType) {
+      case PageType.JOBS:
+        return (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+              {store.session && <JobsTable />}
+            </Paper>
+          </Grid>
+        );
+      case PageType.CONTACTS:
+        return (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+              <ContactsTable />
+            </Paper>
+          </Grid>
+        );
+      case PageType.SKILLS:
+        return (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+              <SkillsTable />
+            </Paper>
+          </Grid>
+        );
+      default:
+        return (
+          <Grid item xs={12} md={12} lg={12}>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                height: 240,
+              }}
+            >
+              <Chart />
+            </Paper>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                mt: 2,
+              }}
+            >
+              {store.session && <JobsTable />}
+            </Paper>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                mt: 2,
+              }}
+            >
+              <ContactsTable />
+            </Paper>
+          </Grid>
+        );
+    }
+  };
+
+  if (!codeRedirect) {
+    return <SignInPage />;
+  }
+
+  return (
+    <ThemeProvider theme={mdTheme}>
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBar position="absolute" open={open}>
+          <Toolbar
+            sx={{
+              pr: "24px", // keep right padding when drawer closed
+            }}
+          >
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={toggleDrawer}
+              sx={{
+                marginRight: "36px",
+                ...(open && { display: "none" }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+              Job Tracker
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer variant="permanent" open={open}>
+          <Toolbar
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              px: [1],
+            }}
+          >
+            <IconButton onClick={toggleDrawer}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </Toolbar>
+          <Divider />
+          <List component="nav">
+            <React.Fragment>
+              <ListItemButton
+                onClick={() => {
+                  setPageType(PageType.DASHBOARD);
+                }}
+                selected={pageType === PageType.DASHBOARD}
+              >
+                <ListItemIcon>
+                  <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItemButton>
+              <ListItemButton
+                onClick={() => {
+                  setPageType(PageType.JOBS);
+                }}
+                selected={pageType === PageType.JOBS}
+              >
+                <ListItemIcon>
+                  <WorkIcon />
+                </ListItemIcon>
+                <ListItemText primary="Jobs" />
+              </ListItemButton>
+              <ListItemButton
+                onClick={() => {
+                  setPageType(PageType.CONTACTS);
+                }}
+                selected={pageType === PageType.CONTACTS}
+              >
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Contacts" />
+              </ListItemButton>
+              <ListItemButton
+                onClick={() => {
+                  setPageType(PageType.SKILLS);
+                }}
+                selected={pageType === PageType.SKILLS}
+              >
+                <ListItemIcon>
+                  <BoltIcon />
+                </ListItemIcon>
+                <ListItemText primary="Skills" />
+              </ListItemButton>
+              <Divider sx={{ my: 1 }} />
+              <ListItemButton
+                onClick={() => {
+                  window.location.replace(baseURL);
+                }}
+              >
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
+              </ListItemButton>
+            </React.Fragment>
+          </List>
+        </Drawer>
+        <Box
+          component="main"
+          sx={{
+            backgroundColor: (theme) =>
+              theme.palette.mode === "light"
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
+            flexGrow: 1,
+            height: "100vh",
+            overflow: "auto",
+          }}
+        >
+          <Toolbar />
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              {/* Recent Orders */}
+              {pageContent()}
+            </Grid>
+            <Copyright />
+          </Container>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
 });
 
 export default Dashboard;
