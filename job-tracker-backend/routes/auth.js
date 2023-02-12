@@ -1,4 +1,4 @@
-const redirect_uri = Boolean(Boolean(process.env.GOOGLE_CLOUD_PROJECT)) ? "https://jobtracker-376008.uw.r.appspot.com" : "http://localhost:3003";
+const redirect_uri = Boolean(Boolean(process.env.GOOGLE_CLOUD_PROJECT)) ? "https://jobtracker-376008.uw.r.appspot.com" : "http://localhost:3000";
 
 const fetch = require('node-fetch');
 const psPool = require('../utils/psPool')
