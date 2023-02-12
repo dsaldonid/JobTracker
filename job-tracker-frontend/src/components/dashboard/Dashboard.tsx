@@ -34,6 +34,7 @@ import { AppPageState } from "../app/types";
 import Copyright from "../shared/Copyright";
 import Axios from "axios";
 import AppStore from "../app/AppStore";
+import SignInPage from "../authentication/SignInPage";
 const drawerWidth: number = 240;
 const baseURL = "http://localhost:3000";
 interface AppBarProps extends MuiAppBarProps {
@@ -93,24 +94,28 @@ const Dashboard: React.FC = observer(() => {
 
         const [open, setOpen] = React.useState<boolean>(true);
         const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
+        const [codeRedirect] =
+        React.useState<string | null>((new URLSearchParams(window.location.search)).get("code"));
         const toggleDrawer = () => {
             setOpen(!open);
         };
 
         React.useEffect(() => {
             console.log(window.location.search);
-            const params = new URLSearchParams(window.location.search);
-            const code_redirect = params.get("code");
-            console.log("code_redirect: ", code_redirect);
-            const baseURL2 = `http://localhost:3003/token?code=${code_redirect}`;
-            Axios.get(baseURL2).then((response) => {
-                console.log(
-                    "sessions key is: ",
-                    response.data.session,
-                    typeof response.data.session
-                );
-                store.setSession(response.data.session);
-            });
+
+            if(codeRedirect) {
+                console.log("code_redirect: ", codeRedirect);
+                const baseURL2 = `http://localhost:3003/token?code=${codeRedirect}`;
+                Axios.get(baseURL2).then((response) => {
+                    console.log(
+                        "sessions key is: ",
+                        response.data.session,
+                        typeof response.data.session
+                    );
+                    store.setSession(response.data.session);
+                });
+            }
+            
             // let { tokens } = await oauth2Client.getToken(q.code);
             // console.log("print token: ", tokens);
         }, []);
@@ -146,7 +151,6 @@ const Dashboard: React.FC = observer(() => {
                 default:
                     return (
                         <Grid item xs={12} md={12} lg={12}>
-                            <h1>The session is {store.session}</h1>;
                             <Paper
                                 sx={{
                                     p: 2,
@@ -183,6 +187,10 @@ const Dashboard: React.FC = observer(() => {
                     );
             }
         };
+
+        if(!codeRedirect) {
+            return (<SignInPage />);
+        }
 
         return (
                     <ThemeProvider theme={mdTheme}>
@@ -280,7 +288,7 @@ const Dashboard: React.FC = observer(() => {
                                         <Divider sx={{ my: 1 }} />
                                         <ListItemButton
                                             onClick={() => {
-                                                store.setPageState(AppPageState.LOGIN_PAGE);
+                                                window.location.replace(baseURL);
                                             }}
                                         >
                                             <ListItemIcon>
