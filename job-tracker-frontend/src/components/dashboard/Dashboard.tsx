@@ -36,8 +36,8 @@ import Axios from "axios";
 import AppStore from "../app/AppStore";
 import SignInPage from "../authentication/SignInPage";
 const drawerWidth: number = 240;
-const baseURL = "http://localhost:3000";
-// const baseURL = "https://jobtracker-376008.uw.r.appspot.com/";
+// const baseURL = "http://localhost:3000";
+const baseURL = "https://jobtracker-376008.uw.r.appspot.com/";
 const serverURL = "https://job-tracker-postgressql.uw.r.appspot.com/";
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
