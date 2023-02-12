@@ -1,101 +1,542 @@
-import * as React from 'react';
-import Link from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Title from './Title';
-import { Autocomplete, Button, Grid, TextField } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-
-// Generate Order Data
-function createData(
-  id: number,
-  date: string,
-  name: string,
-  shipTo: string,
-  amount: number,
-) {
-  return { id, date, name, shipTo, amount };
+import * as React from "react";
+import Link from "@mui/material/Link";
+import Table from "@mui/material/Table";
+import TableContainer from "@mui/material/TableContainer";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import {
+  Autocomplete,
+  Button,
+  Grid,
+  TextField,
+  SxProps,
+  Box,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import Title from "./Title";
+import {
+  DataGrid,
+  GridColDef,
+  GridRowModel,
+  GridRowId,
+  GridRowsProp,
+  GridRenderCellParams,
+  useGridApiContext,
+} from "@mui/x-data-grid";
+import moment from "moment";
+import { styled } from "@mui/material/styles";
+import { randomId } from "@mui/x-data-grid-generator";
+import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
+import Axios from "axios";
+const baseURL = "http://localhost:3003";
+// Interface for Jobs:
+interface Job {
+  rowId: GridRowId;
+  companyName?: string;
+  fullName?: string;
+  title?: string;
+  email?: string;
+  phone?: string;
+  relationship?: string;
+  notes?: string;
+  followUpDate?: string | Date;
 }
-
-const rows = [
-  createData(
-    0,
-    '16 Mar, 2019',
-    'Elvis Presley',
-    'Tupelo, MS',
-    312.44,
-  ),
-  createData(
-    1,
-    '16 Mar, 2019',
-    'Paul McCartney',
-    'London, UK',
-    866.99,
-  ),
-  createData(2, '16 Mar, 2019', 'Tom Scholz', 'Boston, MA', 100.81),
-  createData(
-    3,
-    '16 Mar, 2019',
-    'Michael Jackson',
-    'Gary, IN',
-    654.39,
-  ),
-  createData(
-    4,
-    '15 Mar, 2019',
-    'Bruce Springsteen',
-    'Long Branch, NJ',
-    212.79,
-  ),
-];
-
-function preventDefault(event: React.MouseEvent) {
-  event.preventDefault();
+interface PropTypes {
+  cookie: {
+    session: string;
+  };
 }
+// Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
+const CustomDisabledTextField = styled(TextField)(() => ({
+  ".MuiInputBase-input.Mui-disabled": {
+    WebkitTextFillColor: "#000",
+    color: "#000",
+  },
+}));
 
-export default function ContactsTable() {
+export default function ContactsTable({ cookie }: PropTypes) {
+  const [allContacts, setAllContacts] = React.useState<GridRowsProp>(tableData);
+  const [confirmData, setConfirmData] = React.useState<any>(null);
+  const [addContact, setAddContacts] = React.useState<Job>({
+    rowId: "",
+    companyName: "",
+    fullName: "",
+    title: "",
+    email: "",
+    phone: "",
+    relationship: "",
+    notes: "",
+    followUpDate: "",
+  });
+  const [pageSize, setPageSize] = React.useState<number>(20);
+  const [rowId, setRowId] = React.useState<number | null>();
+
+  // This creates the options/details for headers & their associated column:
+  // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
+  // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
+  const columns: GridColDef[] = [
+    {
+      field: "companyName",
+      headerName: "Company Name",
+      width: 150,
+      editable: false,
+      sortable: true,
+      // This will render the cell how you want it. Instead of a regular cell, I want to create a textfield so I don't have to scroll
+      // right when the message is too long(textfield wraps text around)
+    },
+    {
+      field: "fullName",
+      headerName: "Full Name",
+      width: 150,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "title",
+      headerName: "Title",
+      width: 150,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      hide: true,
+      width: 120,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "phone",
+      headerName: "Phone",
+      width: 130,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "relationship",
+      headerName: "Relationship",
+      width: 120,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "notes",
+      headerName: "Notes",
+      width: 350,
+      hide: true,
+      editable: true,
+      sortable: true,
+      renderCell: (params) => (
+        <CustomDisabledTextField
+          multiline
+          variant={"standard"}
+          fullWidth
+          InputProps={{ disableUnderline: true }}
+          maxRows={4}
+          disabled={true}
+          sx={{
+            padding: 1,
+            color: "primary.main",
+          }}
+          defaultValue={params.row.notes}
+          value={params.row.notes}
+        />
+      ),
+    },
+    {
+      field: "followUpDate",
+      headerName: "Follow Up Date",
+      width: 100,
+      sortable: true,
+      // Date Styling addon- Delete if not needed later
+      // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 100,
+      renderCell: (params) => {
+        return (
+          <Button
+            onClick={() => handleDelete(params.row.jobId)}
+            variant="contained"
+          >
+            Delete
+          </Button>
+        );
+      },
+    },
+  ];
+  const dataGridStyles: SxProps = {
+    // Required for Data table creation, if data grid doesn't have a height, it errors out(MUI bug):
+    height: 500,
+  };
+
+  function preventDefault(event: React.MouseEvent) {
+    event.preventDefault();
+  }
+
+  React.useEffect(() => {
+    // console.log("Hello from JobsTable");
+    // Grab data from backend on page load:
+    // Axios.get(`${baseURL}/contacts`, {
+    //   headers: {
+    //     // Formatted as "Bearer 248743843", where 248743843 is our session key:
+    //     Authorization: `Bearer ${cookie.session}`,
+    //   },
+    // }).then((response) => {
+    //   setAllContacts(response.data);
+    // });
+
+    setAllContacts(tableData);
+  }, []);
+
+  /*------------------------------------Create/Add Row Logic------------------------------------*/
+
+  const handleChangeAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    // Store name attribute value and cell value as new field entry:
+    const inputField = e.target.getAttribute("name");
+    const inputValue = e.target.value;
+    const newJob = { ...addContact };
+    // Typescript typing error workaround:
+    // https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
+    newJob[inputField as keyof typeof newJob] = inputValue;
+    setAddContacts(newJob);
+  };
+
+  const handleAddJobFormSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const newContact = {
+      contactId: randomId(),
+      companyName: addContact.companyName,
+      fullName: addContact.fullName,
+      title: addContact.title,
+      email: addContact.email,
+      phone: addContact.phone,
+      relationship: addContact.relationship,
+      notes: addContact.notes,
+      followUpDate: addContact.followUpDate,
+    };
+    Axios.post(`${baseURL}/jobs`, newContact, {
+      headers: {
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      // console.log("3nd localhost res is: ", response.data);
+    });
+    Axios.get(`${baseURL}/jobs`, {
+      headers: {
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      setAllContacts(response.data);
+      // console.log("2nd localhost res is: ", response.data);
+    });
+    // console.log("add job: ", newJob);
+    setAllContacts([...allContacts, addContact]);
+  };
+
+  /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
+
+  // Editable Cells: new data saved in confirmData
+  // the datagrid API option that I enabled saves the "current row" and "the row before it was edited" so we can access
+  // them and pick which one to render based on user confirmation:
+  const processRowUpdate = React.useCallback(
+    (newRow: GridRowModel, oldRow: GridRowModel) =>
+      new Promise<GridRowModel>((resolve, reject) => {
+        setConfirmData({ resolve, reject, newRow, oldRow });
+      }),
+    []
+  );
+
+  // Handles Errors:
+  const handleProcessRowUpdateError = (error: Error) => {
+    console.log(error);
+  };
+
+  // User chooses dialog options on editted cell:
+  const handleDataChangeDialog = (response: string) => {
+    const { newRow, oldRow, resolve } = confirmData;
+    // console.log("New row is: ", newRow, newRow.jobId);
+    // If user responds yes, send new row to database, else resolve old row back:
+    if (response == "Yes") {
+      Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
+        headers: {
+          Authorization: `Bearer ${cookie.session}`,
+        },
+      }).then((response) => {
+        // setAllJobs(response.data);
+        // setPosts(response.data);
+        console.log("3nd localhost res is: ", response.data);
+        resolve(newRow);
+      });
+    } else if (response == "No") {
+      resolve(oldRow);
+    }
+    setConfirmData(null);
+  };
+
+  // Promise resolved based on user dialog response:
+  const renderConfirmDialog = () => {
+    // Case 1: Errors:
+    if (!confirmData) {
+      return null;
+    }
+    const { newRow, oldRow, resolve } = confirmData;
+    console.log("what is row right renderConfirmDialog: ", newRow);
+
+    // Case 2: if new input is same as old input, don't show dialog:
+    if (JSON.stringify(newRow) == JSON.stringify(oldRow)) {
+      resolve(oldRow);
+      setConfirmData(null);
+      return;
+    }
+
+    // Default Case: render confirmation dialog:
+    return (
+      <Dialog maxWidth="xs" open={confirmData}>
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => handleDataChangeDialog("No")}>No</Button>
+          <Button onClick={() => handleDataChangeDialog("Yes")}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  /*------------------------------------Delete Row Logic------------------------------------*/
+
+  const handleDelete = (jobId: number) => {
+    // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
+    const delete_record = { jobId: jobId };
+    Axios.delete(`${baseURL}/jobs/${jobId}`, {
+      headers: {
+        Authorization: `Bearer ${cookie.session}`,
+      },
+    }).then((response) => {
+      Axios.get(`${baseURL}/jobs`, {
+        headers: {
+          Authorization: `Bearer ${cookie.session}`,
+        },
+      }).then((response) => {
+        setAllContacts(response.data);
+      });
+      console.log("3nd localhost res is: ", response.data);
+    });
+  };
+
+  // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though
+  // here the child component(datagrid), is an API in MUI.
+  // columns: what the headers and associated column configuations are
+  // rows: the actual data for each row(it does the map function)
+  // Update stuff is a little weird-- requires making a promise and resolving it
+  // After that, it is just the regular Form Submit stuff
   return (
     <React.Fragment>
-      <Title>Contacts</Title>
-      <Grid container xs={12} md={12} lg={12}>
-        <Grid xs={11} md={11} lg={11}>
-          <Autocomplete
-          options={rows}
-          fullWidth
-          getOptionLabel={(option)=>option.name}
-          disablePortal
-          renderInput={(params) => <TextField {...params} label="Search Contacts" />}
+      <h2>Contacts TABLE</h2>
+      <TableContainer component={Paper}>
+        <Paper sx={dataGridStyles}>
+          {renderConfirmDialog()}
+          <DataGrid
+            columns={columns}
+            rows={allContacts}
+            getRowHeight={() => "auto"}
+            getRowId={(row) => row.contactId}
+            onPageSizeChange={(pageSizeChoice: number) =>
+              setPageSize(pageSizeChoice)
+            }
+            pageSize={pageSize}
+            rowsPerPageOptions={[20, 40, 60]}
+            // autoPageSize={true}
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={processRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
           />
-        </Grid>
-        <Grid xs={1} md={1} lg={1} sx={{mt: 1}}>
-          <Button>
-            <SearchIcon />
-        </Button>
-        </Grid>
-      </Grid>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date Contacted</TableCell>
-            <TableCell>Contact Name</TableCell>
-            <TableCell>Contact Location</TableCell>
-            <TableCell align="right">Salary Estimate</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.shipTo}</TableCell>
-              <TableCell align="right">{`$${row.amount}`}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+        </Paper>
+        <h2>Add a Contact</h2>
+        <form onSubmit={handleAddJobFormSubmit}>
+          <TextField
+            type="text"
+            name="companyName"
+            required
+            placeholder="Enter company name.."
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <TextField
+            type="date"
+            name="fullName"
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+            // value={addJob.job_location}
+            required
+            placeholder="Enter full name.."
+            onChange={handleChangeAddJob}
+          ></TextField>
+          <TextField
+            type="text"
+            name="title"
+            // value={addJob.date_posted}
+            placeholder="Enter title.."
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <br />
+          <TextField
+            type="text"
+            name="email"
+            // value={addJob.salary_est}
+            required
+            placeholder="Enter email.."
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <TextField
+            type="text"
+            name="phone"
+            // value={addJob.salary_est}
+            required
+            placeholder="Enter phone.."
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <TextField
+            type="text"
+            name="relationship"
+            // value={addJob.salary_est}
+            required
+            placeholder="Enter relationship.."
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <br />
+          <TextField
+            type="text"
+            name="notes"
+            // value={addJob.salary_est}
+            required
+            placeholder="Enter notes.."
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <TextField
+            type="date"
+            name="followUpDate"
+            // value={addJob.salary_est}
+            required
+            onChange={handleChangeAddJob}
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+          ></TextField>
+          <br />
+          <Button type="submit" variant="contained" color="primary">
+            Add Contact
+          </Button>
+        </form>
+      </TableContainer>
     </React.Fragment>
   );
 }
+
+// https://mockaroo.com/
+const tableData: GridRowsProp = [
+  {
+    contactId: 95,
+    companyName: "Devshare",
+    fullName: "Elnar O'Sullivan",
+    title: "eosullivan2m@hc360.com",
+    email: "eosullivan2m@irs.gov",
+    phone:
+      "in quam fringilla rhoncus mauris enim leo rhoncus sed vestibulum sit amet cursus id",
+    relationship:
+      "felis fusce posuere felis sed lacus morbi sem mauris laoreet ut rhoncus aliquet pulvinar",
+    notes:
+      "id turpis integer aliquet massa id lobortis convallis tortor risus dapibus augue vel accumsan",
+    followUpDate: "6/24/2022",
+  },
+  {
+    contactId: 96,
+    companyName: "Eabox",
+    fullName: "Berty Key",
+    title: "bkey2n@ibm.com",
+    email: "bkey2n@nifty.com",
+    phone:
+      "libero non mattis pulvinar nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel enim sit amet nunc",
+    relationship:
+      "posuere cubilia curae donec pharetra magna vestibulum aliquet ultrices erat tortor sollicitudin mi sit amet lobortis",
+    notes:
+      "ac leo pellentesque ultrices mattis odio donec vitae nisi nam ultrices",
+    followUpDate: "1/3/2023",
+  },
+  {
+    contactId: 97,
+    companyName: "Minyx",
+    fullName: "Wiley Chattell",
+    title: "wchattell2o@google.co.uk",
+    email: "wchattell2o@who.int",
+    phone:
+      "orci nullam molestie nibh in lectus pellentesque at nulla suspendisse potenti cras in purus eu magna",
+    relationship:
+      "eget elit sodales scelerisque mauris sit amet eros suspendisse accumsan tortor quis turpis sed ante vivamus tortor duis mattis",
+    notes:
+      "gravida sem praesent id massa id nisl venenatis lacinia aenean sit amet justo morbi ut odio cras mi pede",
+    followUpDate: "9/13/2022",
+  },
+  {
+    contactId: 98,
+    companyName: "Vinder",
+    fullName: "Skipp Malzard",
+    title: "smalzard2p@nymag.com",
+    email: "smalzard2p@youku.com",
+    phone:
+      "quis libero nullam sit amet turpis elementum ligula vehicula consequat morbi a ipsum integer a",
+    relationship:
+      "eleifend pede libero quis orci nullam molestie nibh in lectus pellentesque at nulla suspendisse potenti",
+    notes:
+      "nibh in quis justo maecenas rhoncus aliquam lacus morbi quis tortor id nulla ultrices aliquet maecenas",
+    followUpDate: "6/4/2022",
+  },
+  {
+    contactId: 99,
+    companyName: "Meemm",
+    fullName: "Lazarus Danniel",
+    title: "ldanniel2q@marketwatch.com",
+    email: "ldanniel2q@abc.net.au",
+    phone:
+      "quisque id justo sit amet sapien dignissim vestibulum vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia",
+    relationship:
+      "pharetra magna ac consequat metus sapien ut nunc vestibulum ante ipsum primis in faucibus",
+    notes:
+      "erat fermentum justo nec condimentum neque sapien placerat ante nulla justo",
+    followUpDate: "7/23/2022",
+  },
+  {
+    contactId: 100,
+    companyName: "Twitterbeat",
+    fullName: "Lenee Marlowe",
+    title: "lmarlowe2r@bbb.org",
+    email: "lmarlowe2r@ow.ly",
+    phone:
+      "pulvinar sed nisl nunc rhoncus dui vel sem sed sagittis nam congue risus semper porta volutpat quam pede lobortis",
+    relationship:
+      "ut massa quis augue luctus tincidunt nulla mollis molestie lorem quisque ut erat",
+    notes: "nec dui luctus rutrum nulla tellus in sagittis dui vel nisl",
+    followUpDate: "12/8/2022",
+  },
+];
