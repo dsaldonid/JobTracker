@@ -17,10 +17,22 @@ import AppStore from '../app/AppStore';
 import { AppContext } from '../..';
 import { AppPageState } from '../app/types';
 import Copyright from '../shared/Copyright';
+import Axios from "axios";
 
 const theme = createTheme();
 
+const baseURL = "http://localhost:3003/authorize";
+
 const SignInPage: React.FC= observer(()=> {
+
+  const authorizeUser = () => {
+    Axios.get(baseURL).then((response) => {
+      // Move client to URL of redirect site>
+      window.location.replace(response.data.url);
+      const url = new URL(response.data.url);
+      const codeId = url.searchParams.get("code");
+    });
+  };
 
   const store: AppStore = React.useContext(AppContext);
 
@@ -43,50 +55,14 @@ const SignInPage: React.FC= observer(()=> {
             Sign in
           </Typography>
           <Box sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={()=>{store.setPageState(AppPageState.DASHBOARD_PAGE)}}
+              onClick={()=>{authorizeUser()}}
             >
-              Sign In
+              Sign In WIth Google
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2" onClick={()=>{store.setPageState(AppPageState.SIGN_UP_PAGE)}}>
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
         </Box>
         <Copyright />

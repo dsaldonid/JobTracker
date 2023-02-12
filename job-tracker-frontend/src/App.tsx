@@ -10,13 +10,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 export default function App() {
   return (
     <div className="dashboard">
-      <Router>
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </Router>
       <AppContainer />
     </div>
   );
