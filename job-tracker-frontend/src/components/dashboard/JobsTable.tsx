@@ -14,6 +14,7 @@ import DialogActions from "@mui/material/DialogActions";
 import { observer } from "mobx-react-lite";
 import AppStore from "../app/AppStore";
 import { AppContext } from "../../index"
+import LinearProgress from '@mui/material/LinearProgress';
 import {
   Autocomplete,
   Button,
@@ -79,6 +80,7 @@ const JobsTable: React.FC = observer(() => {
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
+  const [loading, setLoading] = React.useState<boolean>(true);
 
   // This creates the options/details for headers & their associated column:
     // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
@@ -241,6 +243,7 @@ const JobsTable: React.FC = observer(() => {
   React.useEffect(() => {
     // console.log("Hello from JobsTable");
     // Grab data from backend on page load:
+    setLoading(true);
     Axios.get(`${baseURL}/jobs`, {
       headers: {
         // Formatted as "Bearer 248743843", where 248743843 is our session key:
@@ -248,9 +251,9 @@ const JobsTable: React.FC = observer(() => {
       },
     }).then((response) => {
       setAllJobs(response.data);
+      setLoading(false);
     });
 
-    setAllJobs(tableData);
   }, []);
 
   //if (allJobs) return null;
@@ -391,6 +394,10 @@ const JobsTable: React.FC = observer(() => {
       console.log("3nd localhost res is: ", response.data);
     });
   };
+
+  if(loading) {
+    return <LinearProgress />
+  }
 
   // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though 
   // here the child component(datagrid), is an API in MUI. 

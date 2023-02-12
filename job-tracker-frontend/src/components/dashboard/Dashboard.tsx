@@ -121,7 +121,9 @@ const Dashboard: React.FC = observer(() => {
                     return (
                         <Grid item xs={12}>
                             <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                                <JobsTable cookie={{ session: Number(store.session) }} />
+                            {
+                                store.session && (<JobsTable />)
+                            }
                             </Paper>
                         </Grid>
                     );
@@ -163,7 +165,9 @@ const Dashboard: React.FC = observer(() => {
                                     mt: 2,
                                 }}
                             >
-                                <JobsTable cookie={{ session: Number(store.session) }} />
+                                {
+                                    store.session && (<JobsTable />)
+                                }
                             </Paper>
                             <Paper
                                 sx={{
