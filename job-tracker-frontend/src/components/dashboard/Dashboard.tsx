@@ -33,6 +33,7 @@ import { observer } from "mobx-react-lite";
 import { AppPageState } from "../app/types";
 import Copyright from "../shared/Copyright";
 import Axios from "axios";
+import AppStore from "../app/AppStore";
 const drawerWidth: number = 240;
 const baseURL = "http://localhost:3000";
 interface AppBarProps extends MuiAppBarProps {
@@ -88,6 +89,8 @@ const mdTheme = createTheme();
 
 
 const Dashboard: React.FC = observer(() => {
+    const store: AppStore = React.useContext(AppContext);
+
         const [open, setOpen] = React.useState<boolean>(true);
         const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
         const [session, setSession] = React.useState<string>("");
@@ -180,8 +183,6 @@ const Dashboard: React.FC = observer(() => {
         };
 
         return (
-            <AppContext.Consumer>
-                {(value) => (
                     <ThemeProvider theme={mdTheme}>
                         <Box sx={{ display: "flex" }}>
                             <CssBaseline />
@@ -277,7 +278,7 @@ const Dashboard: React.FC = observer(() => {
                                         <Divider sx={{ my: 1 }} />
                                         <ListItemButton
                                             onClick={() => {
-                                                value.setPageState(AppPageState.LOGIN_PAGE);
+                                                store.setPageState(AppPageState.LOGIN_PAGE);
                                             }}
                                         >
                                             <ListItemIcon>
@@ -311,8 +312,6 @@ const Dashboard: React.FC = observer(() => {
                             </Box>
                         </Box>
                     </ThemeProvider>
-                )}
-            </AppContext.Consumer>
         );
 
 });
