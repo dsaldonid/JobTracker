@@ -11,6 +11,9 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import { observer } from "mobx-react-lite";
+import AppStore from "../app/AppStore";
+import { AppContext } from "../../index"
 import {
   Autocomplete,
   Button,
@@ -49,11 +52,7 @@ interface Job {
   company?: string;
   dateApplied?: string | Date;
 }
-interface PropTypes {
-  cookie: {
-    session: number;
-  };
-}
+
 // Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
 const CustomDisabledTextField = styled(TextField)(() => ({
   ".MuiInputBase-input.Mui-disabled": {
@@ -62,7 +61,8 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function JobsTable({ cookie }: PropTypes) {
+const JobsTable: React.FC = observer(() => {
+  const store: AppStore = React.useContext(AppContext);
   const [allJobs, setAllJobs] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addJob, setAddJob] = React.useState<Job>({
@@ -244,7 +244,7 @@ export default function JobsTable({ cookie }: PropTypes) {
     Axios.get(`${baseURL}/jobs`, {
       headers: {
         // Formatted as "Bearer 248743843", where 248743843 is our session key:
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
@@ -286,14 +286,14 @@ export default function JobsTable({ cookie }: PropTypes) {
     };
     Axios.post(`${baseURL}/jobs`, newJob, {
       headers: {
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       // console.log("3nd localhost res is: ", response.data);
     });
     Axios.get(`${baseURL}/jobs`, {
       headers: {
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       setAllJobs(response.data);
@@ -329,7 +329,7 @@ export default function JobsTable({ cookie }: PropTypes) {
     if (response == "Yes") {
       Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
         headers: {
-          Authorization: `Bearer ${cookie.session}`,
+          Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
         // setAllJobs(response.data);
@@ -378,12 +378,12 @@ export default function JobsTable({ cookie }: PropTypes) {
     const delete_record = { jobId: jobId };
     Axios.delete(`${baseURL}/jobs/${jobId}`, {
       headers: {
-        Authorization: `Bearer ${cookie.session}`,
+        Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
       Axios.get(`${baseURL}/jobs`, {
         headers: {
-          Authorization: `Bearer ${cookie.session}`,
+          Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
         setAllJobs(response.data);
@@ -520,7 +520,9 @@ export default function JobsTable({ cookie }: PropTypes) {
       </TableContainer>
     </React.Fragment>
   );
-}
+})
+
+export default JobsTable;
 
 // https://mockaroo.com/
 const tableData: GridRowsProp = [
