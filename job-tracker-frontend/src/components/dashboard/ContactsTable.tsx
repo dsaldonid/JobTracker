@@ -64,7 +64,7 @@ const CustomDisabledTextField = styled(TextField)(() => ({
 export default function ContactsTable({ cookie }: PropTypes) {
   const [allContacts, setAllContacts] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
-  const [addContact, setAddContacts] = React.useState<Job>({
+  const [addContact, setAddContact] = React.useState<Job>({
     rowId: "",
     companyName: "",
     fullName: "",
@@ -201,19 +201,21 @@ export default function ContactsTable({ cookie }: PropTypes) {
 
   /*------------------------------------Create/Add Row Logic------------------------------------*/
 
-  const handleChangeAddJob = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeAddContact = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     // Store name attribute value and cell value as new field entry:
     const inputField = e.target.getAttribute("name");
     const inputValue = e.target.value;
-    const newJob = { ...addContact };
+    const newContact = { ...addContact };
     // Typescript typing error workaround:
     // https://stackoverflow.com/questions/57086672/element-implicitly-has-an-any-type-because-expression-of-type-string-cant-b
-    newJob[inputField as keyof typeof newJob] = inputValue;
-    setAddContacts(newJob);
+    newContact[inputField as keyof typeof newContact] = inputValue;
+    setAddContact(newContact);
   };
 
-  const handleAddJobFormSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleAddContactFormSubmit = (
+    e: React.SyntheticEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     const newContact = {
@@ -227,21 +229,21 @@ export default function ContactsTable({ cookie }: PropTypes) {
       notes: addContact.notes,
       followUpDate: addContact.followUpDate,
     };
-    Axios.post(`${baseURL}/jobs`, newContact, {
-      headers: {
-        Authorization: `Bearer ${cookie.session}`,
-      },
-    }).then((response) => {
-      // console.log("3nd localhost res is: ", response.data);
-    });
-    Axios.get(`${baseURL}/jobs`, {
-      headers: {
-        Authorization: `Bearer ${cookie.session}`,
-      },
-    }).then((response) => {
-      setAllContacts(response.data);
-      // console.log("2nd localhost res is: ", response.data);
-    });
+    // Axios.post(`${baseURL}/jobs`, newContact, {
+    //   headers: {
+    //     Authorization: `Bearer ${cookie.session}`,
+    //   },
+    // }).then((response) => {
+    //   // console.log("3nd localhost res is: ", response.data);
+    // });
+    // Axios.get(`${baseURL}/jobs`, {
+    //   headers: {
+    //     Authorization: `Bearer ${cookie.session}`,
+    //   },
+    // }).then((response) => {
+    //   setAllContacts(response.data);
+    //   // console.log("2nd localhost res is: ", response.data);
+    // });
     // console.log("add job: ", newJob);
     setAllContacts([...allContacts, addContact]);
   };
@@ -316,23 +318,25 @@ export default function ContactsTable({ cookie }: PropTypes) {
 
   /*------------------------------------Delete Row Logic------------------------------------*/
 
-  const handleDelete = (jobId: number) => {
-    // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
-    const delete_record = { jobId: jobId };
-    Axios.delete(`${baseURL}/jobs/${jobId}`, {
-      headers: {
-        Authorization: `Bearer ${cookie.session}`,
-      },
-    }).then((response) => {
-      Axios.get(`${baseURL}/jobs`, {
-        headers: {
-          Authorization: `Bearer ${cookie.session}`,
-        },
-      }).then((response) => {
-        setAllContacts(response.data);
-      });
-      console.log("3nd localhost res is: ", response.data);
-    });
+  const handleDelete = (contactId: number) => {
+    const getDeleteItem = allContacts.filter(
+      (row) => row.contactId === contactId
+    );
+    const delete_record = { contactId: contactId };
+    // Axios.delete(`${baseURL}/contact/${jobId}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${cookie.session}`,
+    //   },
+    // }).then((response) => {
+    //   Axios.get(`${baseURL}/contacts`, {
+    //     headers: {
+    //       Authorization: `Bearer ${cookie.session}`,
+    //     },
+    //   }).then((response) => {
+    //     setAllContacts(response.data);
+    //   });
+    //   console.log("3nd localhost res is: ", response.data);
+    // });
   };
 
   // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though
@@ -364,13 +368,13 @@ export default function ContactsTable({ cookie }: PropTypes) {
           />
         </Paper>
         <h2>Add a Contact</h2>
-        <form onSubmit={handleAddJobFormSubmit}>
+        <form onSubmit={handleAddContactFormSubmit}>
           <TextField
             type="text"
             name="companyName"
             required
             placeholder="Enter company name.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -382,14 +386,14 @@ export default function ContactsTable({ cookie }: PropTypes) {
             // value={addJob.job_location}
             required
             placeholder="Enter full name.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
           ></TextField>
           <TextField
             type="text"
             name="title"
             // value={addJob.date_posted}
             placeholder="Enter title.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -400,7 +404,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
             // value={addJob.salary_est}
             required
             placeholder="Enter email.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -410,7 +414,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
             // value={addJob.salary_est}
             required
             placeholder="Enter phone.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -420,7 +424,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
             // value={addJob.salary_est}
             required
             placeholder="Enter relationship.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -431,7 +435,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
             // value={addJob.salary_est}
             required
             placeholder="Enter notes.."
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
@@ -440,7 +444,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
             name="followUpDate"
             // value={addJob.salary_est}
             required
-            onChange={handleChangeAddJob}
+            onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
