@@ -6,7 +6,7 @@ const { NotFoundError } = require("./utils/errors");
 const cookieParser = require("cookie-parser");
 
 const fs = require('fs')
-const psPool = require('./psPool')
+const psPool = require('./utils/psPool')
 
 // Create instance of express application
 const app = express()
@@ -21,7 +21,7 @@ app.use(express.json())
 app.use(morgan("tiny"))
 
 //Add routes for user authentication
-require('./auth')(app);
+require('./routes/auth')(app);
 
 // Add routes for non-google user authentication
 app.use("/altAuth", authRoutes)
@@ -81,10 +81,7 @@ app.use(sessionVerifier);
 app.use(express.json());
 
 //Creates GET, POST, PUT and DELETE endpoints for /jobs
-require('./jobs')(app);
-
-// Will change when we move our app to GCP
-const port = 3003;
+require('./routes/jobs')(app);
 
 // If no routes are touched then we will get a 404 error
 app.use((req, res, next) => {
@@ -101,7 +98,9 @@ app.use((err, req, res, next) => {
     })
 })
 
-const PORT = 3003;
+//process.env.PORT used for GCP
+const PORT = process.env.PORT || 3003;
+
 app.listen(PORT, () => {
     console.log('Server listening in port ' + PORT)
 })
