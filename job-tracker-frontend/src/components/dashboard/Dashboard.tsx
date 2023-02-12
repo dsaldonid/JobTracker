@@ -93,8 +93,6 @@ const Dashboard: React.FC = observer(() => {
 
         const [open, setOpen] = React.useState<boolean>(true);
         const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
-        const [session, setSession] = React.useState<string>("");
-
         const toggleDrawer = () => {
             setOpen(!open);
         };
@@ -111,7 +109,7 @@ const Dashboard: React.FC = observer(() => {
                     response.data.session,
                     typeof response.data.session
                 );
-                setSession(response.data.session);
+                store.setSession(response.data.session);
             });
             // let { tokens } = await oauth2Client.getToken(q.code);
             // console.log("print token: ", tokens);
@@ -123,7 +121,7 @@ const Dashboard: React.FC = observer(() => {
                     return (
                         <Grid item xs={12}>
                             <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                                <JobsTable cookie={{ session }} />
+                                <JobsTable cookie={{ session: Number(store.session) }} />
                             </Paper>
                         </Grid>
                     );
@@ -146,7 +144,7 @@ const Dashboard: React.FC = observer(() => {
                 default:
                     return (
                         <Grid item xs={12} md={12} lg={12}>
-                            <h1>The session is {session}</h1>;
+                            <h1>The session is {store.session}</h1>;
                             <Paper
                                 sx={{
                                     p: 2,
@@ -165,7 +163,7 @@ const Dashboard: React.FC = observer(() => {
                                     mt: 2,
                                 }}
                             >
-                                <JobsTable cookie={session} />
+                                <JobsTable cookie={{ session: Number(store.session) }} />
                             </Paper>
                             <Paper
                                 sx={{
