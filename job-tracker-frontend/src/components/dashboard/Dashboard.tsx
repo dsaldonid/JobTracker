@@ -126,7 +126,7 @@ function DashboardContent() {
         return (
           <Grid item xs={12}>
             <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-              <ContactsTable />
+              <ContactsTable cookie={{ session }} />
             </Paper>
           </Grid>
         );
@@ -160,7 +160,7 @@ function DashboardContent() {
                 mt: 2,
               }}
             >
-              <JobsTable cookie={session} />
+              <JobsTable cookie={{ session }} />
             </Paper>
             <Paper
               sx={{
@@ -170,7 +170,7 @@ function DashboardContent() {
                 mt: 2,
               }}
             >
-              <ContactsTable />
+              <ContactsTable cookie={{ session }} />
             </Paper>
           </Grid>
         );
