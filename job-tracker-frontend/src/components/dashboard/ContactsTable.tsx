@@ -11,6 +11,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import CancelIcon from "@mui/icons-material/Close";
 import {
   Autocomplete,
   Button,
@@ -27,8 +28,11 @@ import {
   GridRowModel,
   GridRowId,
   GridRowsProp,
+  GridRowModes,
+  GridRowModesModel,
   GridRenderCellParams,
   useGridApiContext,
+  GridActionsCellItem,
 } from "@mui/x-data-grid";
 import moment from "moment";
 import { styled } from "@mui/material/styles";
@@ -77,7 +81,11 @@ export default function ContactsTable({ cookie }: PropTypes) {
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
+  const [editRowId, setEditRowId] = React.useState<number>(95);
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
+    {}
+  );
   // This creates the options/details for headers & their associated column:
   // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
   // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
@@ -162,15 +170,70 @@ export default function ContactsTable({ cookie }: PropTypes) {
     {
       field: "actions",
       headerName: "Actions",
-      width: 100,
+      width: 200,
       renderCell: (params) => {
+        const isInEditMode =
+          rowModesModel[params.id]?.mode === GridRowModes.Edit;
+        // console.log("what is isInEditMode: ", isInEditMode);
+        if (isInEditMode) {
+          return (
+            <>
+              <Button
+                onClick={() => setRowSave(params.row.contactId)}
+                variant="contained"
+              >
+                Save
+              </Button>
+              <pre> </pre>
+              <Button
+                onClick={() => setRowCancel(params.row.contactId)}
+                variant="contained"
+              >
+                Cancel
+              </Button>
+            </>
+          );
+        }
         return (
-          <Button
-            onClick={() => handleDelete(params.row.contactId)}
-            variant="contained"
-          >
-            Delete
-          </Button>
+          <>
+            <Button
+              sx={{ mr: 1 }}
+              onClick={() => handleDelete(params.row.contactId)}
+              variant="contained"
+            >
+              Delete
+            </Button>
+            <br />
+            <Button
+              onClick={() => setRowEdit(params.row.contactId)}
+              variant="contained"
+            >
+              Update
+            </Button>
+          </>
+        );
+      },
+      renderEditCell: (params) => {
+        // const isInEditMode =
+        //   rowModesModel[params.id]?.mode === GridRowModes.Edit;
+        // console.log("what is isInEditMode: ", isInEditMode);
+        // if (isInEditMode) {
+        return (
+          <>
+            <Button
+              onClick={() => setRowSave(params.row.contactId)}
+              variant="contained"
+            >
+              Save
+            </Button>
+            <br />
+            <GridActionsCellItem
+              onClick={() => setRowCancel(params.row.contactId)}
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+            />
+          </>
         );
       },
     },
@@ -346,6 +409,53 @@ export default function ContactsTable({ cookie }: PropTypes) {
     //   console.log("3nd localhost res is: ", response.data);
     // });
   };
+  const handleUpdate = (contactId: number, row: any, params: any) => {
+    // const getDeleteItem = allContacts.filter(
+    //   (row) => row.contactId === contactId
+    // );
+    // const updatedContacts = allContacts.filter(
+    //   (row) => row.contactId !== contactId
+    // );
+    console.log("what is row? ", row);
+    console.log("what is params? ", params);
+    // setAllContacts(
+    //   rows.map((row) => (row.id === newRow.id ? updatedRow : row))
+    // );
+    // console.log("updated contacts are: ", contactId, updatedContacts);
+    // setAllContacts(updatedContacts);
+    // const delete_record = { contactId: contactId };
+    // Axios.delete(`${baseURL}/contact/${jobId}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${cookie.session}`,
+    //   },
+    // }).then((response) => {
+    //   Axios.get(`${baseURL}/contacts`, {
+    //     headers: {
+    //       Authorization: `Bearer ${cookie.session}`,
+    //     },
+    //   }).then((response) => {
+    //     setAllContacts(response.data);
+    //   });
+    //   console.log("3nd localhost res is: ", response.data);
+    // });
+  };
+  // const setRowEdit = () => {
+  //   const myNum = 95;
+  //   return { myNum: { mode: GridRowModes.Edit } };
+  //   // return { 96: { mode: GridRowModes.Edit } };
+  // };
+  const setRowEdit = (id: GridRowId) => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+  const setRowSave = (id: GridRowId) => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
+  const setRowCancel = (id: GridRowId) => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
+  };
 
   // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though
   // here the child component(datagrid), is an API in MUI.
@@ -371,8 +481,10 @@ export default function ContactsTable({ cookie }: PropTypes) {
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
             experimentalFeatures={{ newEditingApi: true }}
+            editMode="row"
             processRowUpdate={processRowUpdate}
             onProcessRowUpdateError={handleProcessRowUpdateError}
+            rowModesModel={rowModesModel}
           />
         </Paper>
         <h2>Add a Contact</h2>
