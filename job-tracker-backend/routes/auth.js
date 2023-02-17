@@ -1,7 +1,7 @@
-const redirect_uri = "http://localhost"; //Update with real URL
+const redirect_uri = Boolean(Boolean(process.env.GOOGLE_CLOUD_PROJECT)) ? "https://jobtracker-376008.uw.r.appspot.com" : "http://localhost:3000";
 
 const fetch = require('node-fetch');
-const psPool = require('./psPool')
+const psPool = require('../utils/psPool')
 const fs = require('fs')
 
 const rawdata = fs.readFileSync('oauth.json')

@@ -1,4 +1,4 @@
-const psPool = require('../psPool')
+const psPool = require('../utils/psPool')
 const bcrypt = require("bcrypt")
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 const uuid = require('uuid-random');

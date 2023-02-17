@@ -1,4 +1,4 @@
-const psPool = require('./psPool')
+const psPool = require('../utils/psPool')
 
 module.exports = function(app) {
     //Description: Returns all jobs as an array with nested contacts and skills objects (to be built)
