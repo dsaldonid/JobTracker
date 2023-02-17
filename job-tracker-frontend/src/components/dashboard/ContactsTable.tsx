@@ -30,6 +30,7 @@ import {
   GridRowsProp,
   GridRowModes,
   GridRowModesModel,
+  GridRenderEditCellParams,
   GridRenderCellParams,
   useGridApiContext,
   GridActionsCellItem,
@@ -89,6 +90,33 @@ export default function ContactsTable({ cookie }: PropTypes) {
   // This creates the options/details for headers & their associated column:
   // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
   // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
+
+  const CustomEditComponent: GridColDef["renderCell"] = (
+    params: GridRenderEditCellParams
+  ) => {
+    const { id, value, field } = params;
+    const apiRef = useGridApiContext();
+    return (
+      <TextField
+        multiline
+        variant={"standard"}
+        fullWidth
+        InputProps={{ disableUnderline: true }}
+        maxRows={4}
+        disabled={false}
+        sx={{
+          padding: 1,
+          color: "primary.main",
+        }}
+        onChange={(e) => {
+          apiRef.current.setEditCellValue({ id, field, value: e.target.value });
+          params.value = e.target.value;
+        }}
+        defaultValue={params.row.relationship}
+      />
+    );
+  };
+
   const columns: GridColDef[] = [
     {
       field: "companyName",
@@ -134,7 +162,9 @@ export default function ContactsTable({ cookie }: PropTypes) {
       width: 120,
       editable: true,
       sortable: true,
+      renderEditCell: CustomEditComponent,
     },
+
     {
       field: "notes",
       headerName: "Notes",
@@ -158,6 +188,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
           value={params.row.notes}
         />
       ),
+      renderEditCell: CustomEditComponent,
     },
     {
       field: "followUpDate",
@@ -198,17 +229,17 @@ export default function ContactsTable({ cookie }: PropTypes) {
           <>
             <Button
               sx={{ mr: 1 }}
-              onClick={() => handleDelete(params.row.contactId)}
-              variant="contained"
-            >
-              Delete
-            </Button>
-            <br />
-            <Button
               onClick={() => setRowEdit(params.row.contactId)}
               variant="contained"
             >
               Update
+            </Button>
+            <br />
+            <Button
+              onClick={() => handleDelete(params.row.contactId)}
+              variant="contained"
+            >
+              Delete
             </Button>
           </>
         );
