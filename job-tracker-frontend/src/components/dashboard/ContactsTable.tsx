@@ -37,7 +37,7 @@ import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
 import Axios from "axios";
 const baseURL = "http://localhost:3003";
 // Interface for Jobs:
-interface Job {
+interface Contact {
   rowId: GridRowId;
   companyName?: string;
   fullName?: string;
@@ -64,7 +64,7 @@ const CustomDisabledTextField = styled(TextField)(() => ({
 export default function ContactsTable({ cookie }: PropTypes) {
   const [allContacts, setAllContacts] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
-  const [addContact, setAddContact] = React.useState<Job>({
+  const [addContact, setAddContact] = React.useState<Contact>({
     rowId: "",
     companyName: "",
     fullName: "",
@@ -77,7 +77,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [rowId, setRowId] = React.useState<number | null>();
-
+  const [loading, setLoading] = React.useState<boolean>(true);
   // This creates the options/details for headers & their associated column:
   // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
   // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
@@ -166,7 +166,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
       renderCell: (params) => {
         return (
           <Button
-            onClick={() => handleDelete(params.row.jobId)}
+            onClick={() => handleDelete(params.row.contactId)}
             variant="contained"
           >
             Delete
@@ -185,6 +185,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
   }
 
   React.useEffect(() => {
+    setLoading(true);
     // console.log("Hello from JobsTable");
     // Grab data from backend on page load:
     // Axios.get(`${baseURL}/contacts`, {
@@ -197,6 +198,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
     // });
 
     setAllContacts(tableData);
+    setLoading(false);
   }, []);
 
   /*------------------------------------Create/Add Row Logic------------------------------------*/
@@ -245,7 +247,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
     //   // console.log("2nd localhost res is: ", response.data);
     // });
     // console.log("add job: ", newJob);
-    setAllContacts([...allContacts, addContact]);
+    setAllContacts([...allContacts, newContact]);
   };
 
   /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
@@ -272,16 +274,17 @@ export default function ContactsTable({ cookie }: PropTypes) {
     // console.log("New row is: ", newRow, newRow.jobId);
     // If user responds yes, send new row to database, else resolve old row back:
     if (response == "Yes") {
-      Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
-        headers: {
-          Authorization: `Bearer ${cookie.session}`,
-        },
-      }).then((response) => {
-        // setAllJobs(response.data);
-        // setPosts(response.data);
-        console.log("3nd localhost res is: ", response.data);
-        resolve(newRow);
-      });
+      // Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
+      //   headers: {
+      //     Authorization: `Bearer ${cookie.session}`,
+      //   },
+      // }).then((response) => {
+      //   // setAllJobs(response.data);
+      //   // setPosts(response.data);
+      //   console.log("3nd localhost res is: ", response.data);
+      //   resolve(newRow);
+      // });
+      resolve(newRow);
     } else if (response == "No") {
       resolve(oldRow);
     }
@@ -319,10 +322,15 @@ export default function ContactsTable({ cookie }: PropTypes) {
   /*------------------------------------Delete Row Logic------------------------------------*/
 
   const handleDelete = (contactId: number) => {
-    const getDeleteItem = allContacts.filter(
-      (row) => row.contactId === contactId
+    // const getDeleteItem = allContacts.filter(
+    //   (row) => row.contactId === contactId
+    // );
+    const updatedContacts = allContacts.filter(
+      (row) => row.contactId !== contactId
     );
-    const delete_record = { contactId: contactId };
+    console.log("updated contacts are: ", contactId, updatedContacts);
+    setAllContacts(updatedContacts);
+    // const delete_record = { contactId: contactId };
     // Axios.delete(`${baseURL}/contact/${jobId}`, {
     //   headers: {
     //     Authorization: `Bearer ${cookie.session}`,
