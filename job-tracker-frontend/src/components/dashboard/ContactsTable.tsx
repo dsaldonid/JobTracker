@@ -61,13 +61,6 @@ interface PropTypes {
     session: string;
   };
 }
-// Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
-const CustomDisabledTextField = styled(TextField)(() => ({
-  ".MuiInputBase-input.Mui-disabled": {
-    WebkitTextFillColor: "#000",
-    color: "#000",
-  },
-}));
 
 // export default function ContactsTable({ cookie }: PropTypes) {
 const ContactsTable: React.FC = observer(() => {
@@ -92,35 +85,6 @@ const ContactsTable: React.FC = observer(() => {
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {}
   );
-  // This creates the options/details for headers & their associated column:
-  // eg: field: jobTitle-- in the header jobTitle I want width of each cell to be 200, I want it to be editable and sortable
-  // eg: field: location-- in the header jobTlocationitle I want width of each cell to be 200, but editable is false-- don't want to edit it
-
-  const CustomEditComponent: GridColDef["renderCell"] = (
-    params: GridRenderEditCellParams
-  ) => {
-    const { id, value, field } = params;
-    const apiRef = useGridApiContext();
-    return (
-      <TextField
-        multiline
-        variant={"standard"}
-        fullWidth
-        InputProps={{ disableUnderline: true }}
-        maxRows={4}
-        disabled={false}
-        sx={{
-          padding: 1,
-          color: "primary.main",
-        }}
-        onChange={(e) => {
-          apiRef.current.setEditCellValue({ id, field, value: e.target.value });
-          params.value = e.target.value;
-        }}
-        defaultValue={params.row.relationship}
-      />
-    );
-  };
 
   const columns: GridColDef[] = [
     {
@@ -129,8 +93,6 @@ const ContactsTable: React.FC = observer(() => {
       width: 150,
       editable: false,
       sortable: true,
-      // This will render the cell how you want it. Instead of a regular cell, I want to create a textfield so I don't have to scroll
-      // right when the message is too long(textfield wraps text around)
     },
     {
       field: "fullName",
@@ -167,6 +129,7 @@ const ContactsTable: React.FC = observer(() => {
       width: 120,
       editable: true,
       sortable: true,
+      renderCell: CustomRenderComponent,
       renderEditCell: CustomEditComponent,
     },
 
@@ -174,31 +137,15 @@ const ContactsTable: React.FC = observer(() => {
       field: "notes",
       headerName: "Notes",
       width: 350,
-      hide: true,
       editable: true,
       sortable: true,
-      renderCell: (params) => (
-        <CustomDisabledTextField
-          multiline
-          variant={"standard"}
-          fullWidth
-          InputProps={{ disableUnderline: true }}
-          maxRows={4}
-          disabled={true}
-          sx={{
-            padding: 1,
-            color: "primary.main",
-          }}
-          defaultValue={params.row.notes}
-          value={params.row.notes}
-        />
-      ),
+      renderCell: CustomRenderComponent,
       renderEditCell: CustomEditComponent,
     },
     {
       field: "followUpDate",
       headerName: "Follow Up Date",
-      width: 100,
+      width: 120,
       sortable: true,
       // Date Styling addon- Delete if not needed later
       // renderCell: (data) => moment(data).format("YYYY-MM-DD HH:MM:SS"),
@@ -210,7 +157,6 @@ const ContactsTable: React.FC = observer(() => {
       renderCell: (params) => {
         const isInEditMode =
           rowModesModel[params.id]?.mode === GridRowModes.Edit;
-        // console.log("what is isInEditMode: ", isInEditMode);
         if (isInEditMode) {
           return (
             <>
@@ -275,7 +221,7 @@ const ContactsTable: React.FC = observer(() => {
     },
   ];
   const dataGridStyles: SxProps = {
-    // Required for Data table creation, if data grid doesn't have a height, it errors out(MUI bug):
+    // Required datatable configuration:
     height: 500,
   };
 
@@ -616,27 +562,83 @@ const ContactsTable: React.FC = observer(() => {
 });
 
 export default ContactsTable;
+
+/*------------------------------------Custom Render Components------------------------------------*/
+
+const CustomEditComponent: GridColDef["renderCell"] = (
+  params: GridRenderEditCellParams
+) => {
+  // value will have value of field
+  const { id, value, field } = params;
+  const apiRef = useGridApiContext();
+  return (
+    <TextField
+      multiline
+      variant={"standard"}
+      fullWidth
+      InputProps={{ disableUnderline: true }}
+      maxRows={4}
+      disabled={false}
+      sx={{
+        padding: 1,
+        color: "primary.main",
+      }}
+      onChange={(e) => {
+        apiRef.current.setEditCellValue({ id, field, value: e.target.value });
+        params.value = e.target.value;
+      }}
+      defaultValue={params.value}
+    />
+  );
+};
+
+const CustomRenderComponent = (params: GridRenderCellParams<string>) => {
+  return (
+    <CustomDisabledTextField
+      multiline
+      variant={"standard"}
+      fullWidth
+      InputProps={{ disableUnderline: true }}
+      maxRows={4}
+      disabled={true}
+      sx={{
+        padding: 1,
+        color: "primary.main",
+      }}
+      defaultValue={params.value}
+      value={params.value}
+    />
+  );
+};
+
+// Source: https://stackoverflow.com/questions/70361697/how-to-change-text-color-of-disabled-mui-text-field-mui-v5
+const CustomDisabledTextField = styled(TextField)(() => ({
+  ".MuiInputBase-input.Mui-disabled": {
+    WebkitTextFillColor: "#000",
+    color: "#000",
+  },
+}));
+
 // https://mockaroo.com/
 const tableData: GridRowsProp = [
   {
     contactId: 95,
     companyName: "Devshare",
     fullName: "Elnar O'Sullivan",
-    title: "eosullivan2m@hc360.com",
+    title: "Vice President",
     email: "eosullivan2m@irs.gov",
     phone:
       "in quam fringilla rhoncus mauris enim leo rhoncus sed vestibulum sit amet cursus id",
     relationship:
       "felis fusce posuere felis sed lacus morbi sem mauris laoreet ut rhoncus aliquet pulvinar",
-    notes:
-      "id turpis integer aliquet massa id lobortis convallis tortor risus dapibus augue vel accumsan",
+    notes: "I want to see this note render!",
     followUpDate: "6/24/2022",
   },
   {
     contactId: 96,
     companyName: "Eabox",
     fullName: "Berty Key",
-    title: "bkey2n@ibm.com",
+    title: "Vice Vice President",
     email: "bkey2n@nifty.com",
     phone:
       "libero non mattis pulvinar nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel enim sit amet nunc",
@@ -650,7 +652,7 @@ const tableData: GridRowsProp = [
     contactId: 97,
     companyName: "Minyx",
     fullName: "Wiley Chattell",
-    title: "wchattell2o@google.co.uk",
+    title: "President",
     email: "wchattell2o@who.int",
     phone:
       "orci nullam molestie nibh in lectus pellentesque at nulla suspendisse potenti cras in purus eu magna",
@@ -664,7 +666,7 @@ const tableData: GridRowsProp = [
     contactId: 98,
     companyName: "Vinder",
     fullName: "Skipp Malzard",
-    title: "smalzard2p@nymag.com",
+    title: "senoir president",
     email: "smalzard2p@youku.com",
     phone:
       "quis libero nullam sit amet turpis elementum ligula vehicula consequat morbi a ipsum integer a",
@@ -678,7 +680,7 @@ const tableData: GridRowsProp = [
     contactId: 99,
     companyName: "Meemm",
     fullName: "Lazarus Danniel",
-    title: "ldanniel2q@marketwatch.com",
+    title: "Teacher",
     email: "ldanniel2q@abc.net.au",
     phone:
       "quisque id justo sit amet sapien dignissim vestibulum vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia",
@@ -692,7 +694,7 @@ const tableData: GridRowsProp = [
     contactId: 100,
     companyName: "Twitterbeat",
     fullName: "Lenee Marlowe",
-    title: "lmarlowe2r@bbb.org",
+    title: "the other main guy",
     email: "lmarlowe2r@ow.ly",
     phone:
       "pulvinar sed nisl nunc rhoncus dui vel sem sed sagittis nam congue risus semper porta volutpat quam pede lobortis",
