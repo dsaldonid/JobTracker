@@ -11,6 +11,9 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import { observer } from "mobx-react-lite";
+import AppStore from "../app/AppStore";
+import { AppContext } from "../../index";
 import CancelIcon from "@mui/icons-material/Close";
 import {
   Autocomplete,
@@ -66,7 +69,9 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
-export default function ContactsTable({ cookie }: PropTypes) {
+// export default function ContactsTable({ cookie }: PropTypes) {
+const ContactsTable: React.FC = observer(() => {
+  const store: AppStore = React.useContext(AppContext);
   const [allContacts, setAllContacts] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addContact, setAddContact] = React.useState<Contact>({
@@ -285,7 +290,8 @@ export default function ContactsTable({ cookie }: PropTypes) {
     // Axios.get(`${baseURL}/contacts`, {
     //   headers: {
     //     // Formatted as "Bearer 248743843", where 248743843 is our session key:
-    //     Authorization: `Bearer ${cookie.session}`,
+    // Authorization: `Bearer ${store.session}`,
+    //     Authorization: `Bearer ${store.session}`,
     //   },
     // }).then((response) => {
     //   setAllContacts(response.data);
@@ -327,14 +333,14 @@ export default function ContactsTable({ cookie }: PropTypes) {
     };
     // Axios.post(`${baseURL}/jobs`, newContact, {
     //   headers: {
-    //     Authorization: `Bearer ${cookie.session}`,
+    //     Authorization: `Bearer ${store.session}`,
     //   },
     // }).then((response) => {
     //   // console.log("3nd localhost res is: ", response.data);
     // });
     // Axios.get(`${baseURL}/jobs`, {
     //   headers: {
-    //     Authorization: `Bearer ${cookie.session}`,
+    //     Authorization: `Bearer ${store.session}`,
     //   },
     // }).then((response) => {
     //   setAllContacts(response.data);
@@ -370,7 +376,7 @@ export default function ContactsTable({ cookie }: PropTypes) {
     if (response == "Yes") {
       // Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
       //   headers: {
-      //     Authorization: `Bearer ${cookie.session}`,
+      //     Authorization: `Bearer ${store.session}`,
       //   },
       // }).then((response) => {
       //   // setAllJobs(response.data);
@@ -427,12 +433,12 @@ export default function ContactsTable({ cookie }: PropTypes) {
     // const delete_record = { contactId: contactId };
     // Axios.delete(`${baseURL}/contact/${jobId}`, {
     //   headers: {
-    //     Authorization: `Bearer ${cookie.session}`,
+    //     Authorization: `Bearer ${store.session}`,
     //   },
     // }).then((response) => {
     //   Axios.get(`${baseURL}/contacts`, {
     //     headers: {
-    //       Authorization: `Bearer ${cookie.session}`,
+    //       Authorization: `Bearer ${store.session}`,
     //     },
     //   }).then((response) => {
     //     setAllContacts(response.data);
@@ -457,12 +463,12 @@ export default function ContactsTable({ cookie }: PropTypes) {
     // const delete_record = { contactId: contactId };
     // Axios.delete(`${baseURL}/contact/${jobId}`, {
     //   headers: {
-    //     Authorization: `Bearer ${cookie.session}`,
+    //     Authorization: `Bearer ${store.session}`,
     //   },
     // }).then((response) => {
     //   Axios.get(`${baseURL}/contacts`, {
     //     headers: {
-    //       Authorization: `Bearer ${cookie.session}`,
+    //       Authorization: `Bearer ${store.session}`,
     //     },
     //   }).then((response) => {
     //     setAllContacts(response.data);
@@ -607,8 +613,9 @@ export default function ContactsTable({ cookie }: PropTypes) {
       </TableContainer>
     </React.Fragment>
   );
-}
+});
 
+export default ContactsTable;
 // https://mockaroo.com/
 const tableData: GridRowsProp = [
   {
