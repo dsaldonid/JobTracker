@@ -13,8 +13,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import { observer } from "mobx-react-lite";
 import AppStore from "../app/AppStore";
-import { AppContext } from "../../index"
-import LinearProgress from '@mui/material/LinearProgress';
+import { AppContext } from "../../index";
+import LinearProgress from "@mui/material/LinearProgress";
 import {
   Autocomplete,
   Button,
@@ -174,7 +174,9 @@ const JobsTable: React.FC = observer(() => {
           defaultValue={params.row.location}
           value={params.row.location}
         />
+
       ),
+      
     },
     {
       field: "notes",
@@ -184,6 +186,22 @@ const JobsTable: React.FC = observer(() => {
       editable: true,
       sortable: true,
       renderCell: (params) => (
+        <CustomDisabledTextField
+          multiline
+          variant={"standard"}
+          fullWidth
+          InputProps={{ disableUnderline: true }}
+          maxRows={4}
+          disabled={true}
+          sx={{
+            padding: 1,
+            color: "primary.main",
+          }}
+          defaultValue={params.row.notes}
+          value={params.row.notes}
+        />
+      ),
+      renderEditCell: (params) => (
         <CustomDisabledTextField
           multiline
           variant={"standard"}
@@ -253,7 +271,6 @@ const JobsTable: React.FC = observer(() => {
       setAllJobs(response.data);
       setLoading(false);
     });
-
   }, []);
 
   //if (allJobs) return null;
@@ -395,15 +412,15 @@ const JobsTable: React.FC = observer(() => {
     });
   };
 
-  if(loading) {
-    return <LinearProgress />
+  if (loading) {
+    return <LinearProgress />;
   }
 
-  // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though 
-  // here the child component(datagrid), is an API in MUI. 
-      // columns: what the headers and associated column configuations are
-      // rows: the actual data for each row(it does the map function)
-      // Update stuff is a little weird-- requires making a promise and resolving it 
+  // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though
+  // here the child component(datagrid), is an API in MUI.
+  // columns: what the headers and associated column configuations are
+  // rows: the actual data for each row(it does the map function)
+  // Update stuff is a little weird-- requires making a promise and resolving it
   // After that, it is just the regular Form Submit stuff
   return (
     <React.Fragment>
@@ -527,7 +544,7 @@ const JobsTable: React.FC = observer(() => {
       </TableContainer>
     </React.Fragment>
   );
-})
+});
 
 export default JobsTable;
 
