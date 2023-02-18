@@ -120,7 +120,7 @@ const ContactsTable: React.FC = observer(() => {
     {
       field: "relationship",
       headerName: "Relationship",
-      width: 120,
+      width: 200,
       editable: true,
       sortable: true,
       renderCell: CustomRenderComponent,
