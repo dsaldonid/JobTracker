@@ -288,7 +288,7 @@ const ContactsTable: React.FC = observer(() => {
 
   /*------------------------------------Update/Edit Row Logic------------------------------------*/
 
-  // Row editing:
+  // Row editing toggle:
   const setRowEdit = (id: GridRowId) => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
@@ -356,8 +356,10 @@ const ContactsTable: React.FC = observer(() => {
       //   console.log("3nd localhost res is: ", response.data);
       //   resolve(newRow);
       // });
+      console.log("this is yestriggers!");
       resolve(newRow);
     } else if (response == "No") {
+      console.log("this is triggers!");
       resolve(oldRow);
     }
     setConfirmData(null);
@@ -381,7 +383,7 @@ const ContactsTable: React.FC = observer(() => {
     // Default Case: render confirmation dialog:
     return (
       <Dialog maxWidth="xs" open={confirmData}>
-        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogTitle>Please press Yes to confirm changes</DialogTitle>
         <DialogActions>
           <Button onClick={() => handleDataChangeDialog("No")}>No</Button>
           <Button onClick={() => handleDataChangeDialog("Yes")}>Yes</Button>
