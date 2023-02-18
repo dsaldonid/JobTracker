@@ -1,11 +1,5 @@
 import * as React from "react";
-import Link from "@mui/material/Link";
-import Table from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -56,11 +50,6 @@ interface Contact {
   notes?: string;
   followUpDate?: string | Date;
 }
-interface PropTypes {
-  cookie: {
-    session: string;
-  };
-}
 
 // export default function ContactsTable({ cookie }: PropTypes) {
 const ContactsTable: React.FC = observer(() => {
@@ -85,6 +74,11 @@ const ContactsTable: React.FC = observer(() => {
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {}
   );
+  /*------------------------------------DataTable Initialization Steps------------------------------------*/
+  const dataGridStyles: SxProps = {
+    // Required datatable configuration:
+    height: 500,
+  };
 
   const columns: GridColDef[] = [
     {
@@ -220,10 +214,6 @@ const ContactsTable: React.FC = observer(() => {
       },
     },
   ];
-  const dataGridStyles: SxProps = {
-    // Required datatable configuration:
-    height: 500,
-  };
 
   function preventDefault(event: React.MouseEvent) {
     event.preventDefault();
@@ -296,101 +286,20 @@ const ContactsTable: React.FC = observer(() => {
     setAllContacts([...allContacts, newContact]);
   };
 
-  /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
+  /*------------------------------------Update/Edit Row Logic------------------------------------*/
 
-  // Editable Cells: new data saved in confirmData
-  // the datagrid API option that I enabled saves the "current row" and "the row before it was edited" so we can access
-  // them and pick which one to render based on user confirmation:
-  const processRowUpdate = React.useCallback(
-    (newRow: GridRowModel, oldRow: GridRowModel) =>
-      new Promise<GridRowModel>((resolve, reject) => {
-        setConfirmData({ resolve, reject, newRow, oldRow });
-      }),
-    []
-  );
-
-  // Handles Errors:
-  const handleProcessRowUpdateError = (error: Error) => {
-    console.log(error);
+  // Row editing:
+  const setRowEdit = (id: GridRowId) => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
-
-  // User chooses dialog options on editted cell:
-  const handleDataChangeDialog = (response: string) => {
-    const { newRow, oldRow, resolve } = confirmData;
-    // console.log("New row is: ", newRow, newRow.jobId);
-    // If user responds yes, send new row to database, else resolve old row back:
-    if (response == "Yes") {
-      // Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
-      //   headers: {
-      //     Authorization: `Bearer ${store.session}`,
-      //   },
-      // }).then((response) => {
-      //   // setAllJobs(response.data);
-      //   // setPosts(response.data);
-      //   console.log("3nd localhost res is: ", response.data);
-      //   resolve(newRow);
-      // });
-      resolve(newRow);
-    } else if (response == "No") {
-      resolve(oldRow);
-    }
-    setConfirmData(null);
+  const setRowSave = (id: GridRowId) => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
-
-  // Promise resolved based on user dialog response:
-  const renderConfirmDialog = () => {
-    // Case 1: Errors:
-    if (!confirmData) {
-      return null;
-    }
-    const { newRow, oldRow, resolve } = confirmData;
-    console.log("what is row right renderConfirmDialog: ", newRow);
-
-    // Case 2: if new input is same as old input, don't show dialog:
-    if (JSON.stringify(newRow) == JSON.stringify(oldRow)) {
-      resolve(oldRow);
-      setConfirmData(null);
-      return;
-    }
-
-    // Default Case: render confirmation dialog:
-    return (
-      <Dialog maxWidth="xs" open={confirmData}>
-        <DialogTitle>Are you sure?</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => handleDataChangeDialog("No")}>No</Button>
-          <Button onClick={() => handleDataChangeDialog("Yes")}>Yes</Button>
-        </DialogActions>
-      </Dialog>
-    );
-  };
-
-  /*------------------------------------Delete Row Logic------------------------------------*/
-
-  const handleDelete = (contactId: number) => {
-    // const getDeleteItem = allContacts.filter(
-    //   (row) => row.contactId === contactId
-    // );
-    const updatedContacts = allContacts.filter(
-      (row) => row.contactId !== contactId
-    );
-    console.log("updated contacts are: ", contactId, updatedContacts);
-    setAllContacts(updatedContacts);
-    // const delete_record = { contactId: contactId };
-    // Axios.delete(`${baseURL}/contact/${jobId}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${store.session}`,
-    //   },
-    // }).then((response) => {
-    //   Axios.get(`${baseURL}/contacts`, {
-    //     headers: {
-    //       Authorization: `Bearer ${store.session}`,
-    //     },
-    //   }).then((response) => {
-    //     setAllContacts(response.data);
-    //   });
-    //   console.log("3nd localhost res is: ", response.data);
-    // });
+  const setRowCancel = (id: GridRowId) => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
   };
   const handleUpdate = (contactId: number, row: any, params: any) => {
     // const getDeleteItem = allContacts.filter(
@@ -422,33 +331,101 @@ const ContactsTable: React.FC = observer(() => {
     //   console.log("3nd localhost res is: ", response.data);
     // });
   };
-  // const setRowEdit = () => {
-  //   const myNum = 95;
-  //   return { myNum: { mode: GridRowModes.Edit } };
-  //   // return { 96: { mode: GridRowModes.Edit } };
-  // };
-  const setRowEdit = (id: GridRowId) => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-  const setRowSave = (id: GridRowId) => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
-  const setRowCancel = (id: GridRowId) => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
+
+  // Row server updating and dialogs
+  const processRowUpdate = React.useCallback(
+    (newRow: GridRowModel, oldRow: GridRowModel) =>
+      new Promise<GridRowModel>((resolve, reject) => {
+        setConfirmData({ resolve, reject, newRow, oldRow });
+      }),
+    []
+  );
+
+  const handleDataChangeDialog = (response: string) => {
+    const { newRow, oldRow, resolve } = confirmData;
+    // console.log("New row is: ", newRow, newRow.jobId);
+    // If user responds yes, send new row to database, else resolve old row back:
+    if (response == "Yes") {
+      // Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
+      //   headers: {
+      //     Authorization: `Bearer ${store.session}`,
+      //   },
+      // }).then((response) => {
+      //   // setAllJobs(response.data);
+      //   // setPosts(response.data);
+      //   console.log("3nd localhost res is: ", response.data);
+      //   resolve(newRow);
+      // });
+      resolve(newRow);
+    } else if (response == "No") {
+      resolve(oldRow);
+    }
+    setConfirmData(null);
   };
 
-  // Below we have <DataGrid> like a component and we pass options into it, like how we pass parent props to childs. Though
-  // here the child component(datagrid), is an API in MUI.
-  // columns: what the headers and associated column configuations are
-  // rows: the actual data for each row(it does the map function)
-  // Update stuff is a little weird-- requires making a promise and resolving it
-  // After that, it is just the regular Form Submit stuff
+  const renderConfirmDialog = () => {
+    // Case 1: Errors:
+    if (!confirmData) {
+      return null;
+    }
+    const { newRow, oldRow, resolve } = confirmData;
+    console.log("what is row right renderConfirmDialog: ", newRow);
+
+    // Case 2: if new input is same as old input, don't show dialog:
+    if (JSON.stringify(newRow) == JSON.stringify(oldRow)) {
+      resolve(oldRow);
+      setConfirmData(null);
+      return;
+    }
+
+    // Default Case: render confirmation dialog:
+    return (
+      <Dialog maxWidth="xs" open={confirmData}>
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => handleDataChangeDialog("No")}>No</Button>
+          <Button onClick={() => handleDataChangeDialog("Yes")}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  // Handles Errors:
+  const handleProcessRowUpdateError = (error: Error) => {
+    console.log(error);
+  };
+
+  /*------------------------------------Delete Row Logic------------------------------------*/
+
+  const handleDelete = (contactId: number) => {
+    // const getDeleteItem = allContacts.filter(
+    //   (row) => row.contactId === contactId
+    // );
+    const updatedContacts = allContacts.filter(
+      (row) => row.contactId !== contactId
+    );
+    console.log("updated contacts are: ", contactId, updatedContacts);
+    setAllContacts(updatedContacts);
+    // const delete_record = { contactId: contactId };
+    // Axios.delete(`${baseURL}/contact/${jobId}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${store.session}`,
+    //   },
+    // }).then((response) => {
+    //   Axios.get(`${baseURL}/contacts`, {
+    //     headers: {
+    //       Authorization: `Bearer ${store.session}`,
+    //     },
+    //   }).then((response) => {
+    //     setAllContacts(response.data);
+    //   });
+    //   console.log("3nd localhost res is: ", response.data);
+    // });
+  };
+
   return (
     <React.Fragment>
-      <h2>Contacts TABLE</h2>
+      <h2>Contacts</h2>
       <TableContainer component={Paper}>
         <Paper sx={dataGridStyles}>
           {renderConfirmDialog()}
@@ -619,6 +596,7 @@ const CustomDisabledTextField = styled(TextField)(() => ({
   },
 }));
 
+// mock data:
 // https://mockaroo.com/
 const tableData: GridRowsProp = [
   {
