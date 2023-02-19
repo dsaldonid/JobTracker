@@ -4,6 +4,7 @@ const morgan = require("morgan")
 const authRoutes = require("./routes/altAuth")
 const { NotFoundError } = require("./utils/errors")
 const cookieParser = require("cookie-parser");
+const contactRoutes = require("./routes/contact")
 
 const fs = require('fs')
 const psPool = require('./psPool')
@@ -25,6 +26,9 @@ require('./auth')(app);
 
 // Add routes for non-google user authentication
 app.use("/altAuth", authRoutes)
+
+// Add routes for contact functionality
+app.use("/contact", contactRoutes)
 
 // Creating one route
 app.get("/", async(req,res,next) =>{
