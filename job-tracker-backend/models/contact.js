@@ -1,4 +1,4 @@
-const psPool = require('../psPool')
+const psPool = require('../utils/psPool')
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 
 
