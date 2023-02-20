@@ -459,7 +459,7 @@ const ContactsTable: React.FC = observer(() => {
             style={{ width: "200px", margin: "5px" }}
           ></TextField>
           <TextField
-            type="date"
+            type="text"
             name="firstName"
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
@@ -469,7 +469,7 @@ const ContactsTable: React.FC = observer(() => {
             onChange={handleChangeAddContact}
           ></TextField>
           <TextField
-            type="date"
+            type="text"
             name="lastName"
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
