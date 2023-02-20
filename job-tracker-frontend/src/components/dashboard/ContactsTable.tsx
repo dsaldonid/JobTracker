@@ -44,7 +44,6 @@ interface Contact {
   companyName?: string;
   firstName?: string;
   lastName?: string;
-  title?: string;
   email?: string;
   phone?: string;
   relationship?: string;
@@ -62,7 +61,6 @@ const ContactsTable: React.FC = observer(() => {
     companyName: "",
     firstName: "",
     lastName: "",
-    title: "",
     email: "",
     phone: "",
     relationship: "",
@@ -70,8 +68,6 @@ const ContactsTable: React.FC = observer(() => {
     followUpDate: "",
   });
   const [pageSize, setPageSize] = React.useState<number>(20);
-  const [rowId, setRowId] = React.useState<number | null>();
-  const [editRowId, setEditRowId] = React.useState<number>(95);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {}
@@ -100,13 +96,6 @@ const ContactsTable: React.FC = observer(() => {
     {
       field: "lastName",
       headerName: "Full Name",
-      width: 150,
-      editable: true,
-      sortable: true,
-    },
-    {
-      field: "title",
-      headerName: "Title",
       width: 150,
       editable: true,
       sortable: true,
@@ -626,7 +615,6 @@ const tableData: GridRowsProp = [
     companyName: "Devshare",
     firstName: "Elna",
     lastName: "O'Sullivan",
-    title: "Vice President",
     email: "eosullivan2m@irs.gov",
     phone:
       "in quam fringilla rhoncus mauris enim leo rhoncus sed vestibulum sit amet cursus id",
@@ -640,7 +628,6 @@ const tableData: GridRowsProp = [
     companyName: "Eabox",
     firstName: "Berty",
     lastName: "Key",
-    title: "Vice Vice President",
     email: "bkey2n@nifty.com",
     phone:
       "libero non mattis pulvinar nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel enim sit amet nunc",
@@ -655,7 +642,6 @@ const tableData: GridRowsProp = [
     companyName: "Minyx",
     firstName: "Wiley",
     lastName: "Chattell",
-    title: "President",
     email: "wchattell2o@who.int",
     phone:
       "orci nullam molestie nibh in lectus pellentesque at nulla suspendisse potenti cras in purus eu magna",
@@ -670,7 +656,6 @@ const tableData: GridRowsProp = [
     companyName: "Vinder",
     firstName: "Skipp",
     lastName: "Malzard",
-    title: "senoir president",
     email: "smalzard2p@youku.com",
     phone:
       "quis libero nullam sit amet turpis elementum ligula vehicula consequat morbi a ipsum integer a",
@@ -685,7 +670,6 @@ const tableData: GridRowsProp = [
     companyName: "Meemm",
     firstName: "Lazarus",
     lastName: "Danniel",
-    title: "Teacher",
     email: "ldanniel2q@abc.net.au",
     phone:
       "quisque id justo sit amet sapien dignissim vestibulum vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia",
@@ -700,7 +684,6 @@ const tableData: GridRowsProp = [
     companyName: "Twitterbeat",
     firstName: "Lenee",
     lastName: "Marlowe",
-    title: "the other main guy",
     email: "lmarlowe2r@ow.ly",
     phone:
       "pulvinar sed nisl nunc rhoncus dui vel sem sed sagittis nam congue risus semper porta volutpat quam pede lobortis",
