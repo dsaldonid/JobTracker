@@ -42,7 +42,8 @@ const baseURL = "http://localhost:3003";
 interface Contact {
   rowId: GridRowId;
   companyName?: string;
-  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   title?: string;
   email?: string;
   phone?: string;
@@ -59,7 +60,8 @@ const ContactsTable: React.FC = observer(() => {
   const [addContact, setAddContact] = React.useState<Contact>({
     rowId: "",
     companyName: "",
-    fullName: "",
+    firstName: "",
+    lastName: "",
     title: "",
     email: "",
     phone: "",
@@ -89,7 +91,14 @@ const ContactsTable: React.FC = observer(() => {
       sortable: true,
     },
     {
-      field: "fullName",
+      field: "firstName",
+      headerName: "Full Name",
+      width: 150,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "lastName",
       headerName: "Full Name",
       width: 150,
       editable: true,
@@ -259,7 +268,8 @@ const ContactsTable: React.FC = observer(() => {
     const newContact = {
       contactId: randomId(),
       companyName: addContact.companyName,
-      fullName: addContact.fullName,
+      firstName: addContact.firstName,
+      lastName: addContact.lastName,
       title: addContact.title,
       email: addContact.email,
       phone: addContact.phone,
@@ -462,12 +472,22 @@ const ContactsTable: React.FC = observer(() => {
           ></TextField>
           <TextField
             type="date"
-            name="fullName"
+            name="firstName"
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
             // value={addJob.job_location}
             required
-            placeholder="Enter full name.."
+            placeholder="Enter first name.."
+            onChange={handleChangeAddContact}
+          ></TextField>
+          <TextField
+            type="date"
+            name="lastName"
+            variant="outlined"
+            style={{ width: "200px", margin: "5px" }}
+            // value={addJob.job_location}
+            required
+            placeholder="Enter last name.."
             onChange={handleChangeAddContact}
           ></TextField>
           <TextField
@@ -604,7 +624,8 @@ const tableData: GridRowsProp = [
   {
     contactId: 95,
     companyName: "Devshare",
-    fullName: "Elnar O'Sullivan",
+    firstName: "Elna",
+    lastName: "O'Sullivan",
     title: "Vice President",
     email: "eosullivan2m@irs.gov",
     phone:
@@ -617,7 +638,8 @@ const tableData: GridRowsProp = [
   {
     contactId: 96,
     companyName: "Eabox",
-    fullName: "Berty Key",
+    firstName: "Berty",
+    lastName: "Key",
     title: "Vice Vice President",
     email: "bkey2n@nifty.com",
     phone:
@@ -631,7 +653,8 @@ const tableData: GridRowsProp = [
   {
     contactId: 97,
     companyName: "Minyx",
-    fullName: "Wiley Chattell",
+    firstName: "Wiley",
+    lastName: "Chattell",
     title: "President",
     email: "wchattell2o@who.int",
     phone:
@@ -645,7 +668,8 @@ const tableData: GridRowsProp = [
   {
     contactId: 98,
     companyName: "Vinder",
-    fullName: "Skipp Malzard",
+    firstName: "Skipp",
+    lastName: "Malzard",
     title: "senoir president",
     email: "smalzard2p@youku.com",
     phone:
@@ -659,7 +683,8 @@ const tableData: GridRowsProp = [
   {
     contactId: 99,
     companyName: "Meemm",
-    fullName: "Lazarus Danniel",
+    firstName: "Lazarus",
+    lastName: "Danniel",
     title: "Teacher",
     email: "ldanniel2q@abc.net.au",
     phone:
@@ -673,7 +698,8 @@ const tableData: GridRowsProp = [
   {
     contactId: 100,
     companyName: "Twitterbeat",
-    fullName: "Lenee Marlowe",
+    firstName: "Lenee",
+    lastName: "Marlowe",
     title: "the other main guy",
     email: "lmarlowe2r@ow.ly",
     phone:
