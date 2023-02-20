@@ -1,15 +1,14 @@
 const psPool = require("../utils/psPool");
 const { UnauthorizedError, BadRequestError } = require('../utils/errors');
 
-
-class Contact{
-    static async getAllContacts(user){
-        const requiredFields = ["id"]
-        requiredFields.forEach(field => {
-      if (!user.hasOwnProperty(field)) {
-                throw new BadRequestError(`Missing ${field} in request body`)
-      }
-        })
+class Contact {
+  static async getAllContacts(user) {
+    const requiredFields = ["id"];
+    // requiredFields.forEach(field => {
+    //   if (!user.hasOwnProperty(field)) {
+    //             throw new BadRequestError(`Missing ${field} in request body`)
+    //   }
+    // })
     // Logic for getting all contacts
     const query = `
         SELECT *
@@ -18,9 +17,9 @@ class Contact{
         WHERE job."userId" = $1`
         const client = await psPool.connect()
     let contact;
-        try{
-            const res = await client.query(query, [user.id])
-            contact = await res.rows
+    try {
+      const res = await client.query(query, [user]);
+      contact = await res.rows;
     } catch (err) {
             throw new BadRequestError(err.message)
     } finally {
