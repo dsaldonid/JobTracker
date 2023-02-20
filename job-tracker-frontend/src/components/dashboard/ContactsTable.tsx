@@ -51,7 +51,7 @@ interface Contact {
   followUpDate?: string | Date;
 }
 interface ContactDB {
-  jobId: string;
+  jobid: string;
   contactid: GridRowId;
   firstname?: string;
   lastname?: string;
@@ -79,6 +79,7 @@ function filterResponse(data: ContactDB[]) {
     const contactObject: Contact = Object.create(contactRecord);
     // console.log("contact is: ", contact, contact.lastname, typeof contact);
     // console.log("contactObject is: ", contactObject);
+    contactObject.jobId = contact.jobid;
     contactObject.contactId = contact.contactid;
     contactObject.firstName = contact.firstname;
     contactObject.lastName = contact.lastname;
@@ -381,7 +382,7 @@ const ContactsTable: React.FC = observer(() => {
 
   const handleDataChangeDialog = (response: string) => {
     const { newRow, oldRow, resolve } = confirmData;
-    // console.log("New row is: ", newRow, newRow.jobId);
+    console.log("New row is: ", newRow, newRow.jobId);
     // If user responds yes, send new row to database, else resolve old row back:
     if (response == "Yes") {
       Axios.put(`${baseURL}/contact/updateContact`, newRow, {
