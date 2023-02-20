@@ -101,6 +101,7 @@ const ContactsTable: React.FC = observer(() => {
   const [allContacts, setAllContacts] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addContact, setAddContact] = React.useState<Contact>({
+    jobId: "",
     contactId: "",
     firstName: "",
     lastName: "",
