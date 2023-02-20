@@ -1,44 +1,44 @@
-const psPool = require('../psPool')
-const { UnauthorizedError, BadRequestError } = require('../utils/errors')
+const psPool = require("../utils/psPool");
+const { UnauthorizedError, BadRequestError } = require('../utils/errors');
 
 
 class Contact{
     static async getAllContacts(user){
         const requiredFields = ["id"]
         requiredFields.forEach(field => {
-            if (!user.hasOwnProperty(field)) {
+      if (!user.hasOwnProperty(field)) {
                 throw new BadRequestError(`Missing ${field} in request body`)
-            }
+      }
         })
-        // Logic for getting all contacts
-        const query = `
+    // Logic for getting all contacts
+    const query = `
         SELECT *
         FROM contact
         INNER JOIN job ON contact.jobid=job."jobId"
         WHERE job."userId" = $1`
         const client = await psPool.connect()
-        let contact;
+    let contact;
         try{
             const res = await client.query(query, [user.id])
             contact = await res.rows
-        } catch (err) {
+    } catch (err) {
             throw new BadRequestError(err.message)
-        } finally {
+    } finally {
             client.release()
-        }
-        return contact
     }
+        return contact
+  }
 
     static async createContact(contact){
-        // Make sure user is registering with required fields in database
+    // Make sure user is registering with required fields in database
         const requiredFields = ["jobId", "firstName", "lastName", "email", "phone", "relationship"]
         requiredFields.forEach(field => {
-            if (!contact.hasOwnProperty(field)) {
+      if (!contact.hasOwnProperty(field)) {
                 throw new BadRequestError(`Missing ${field} in request body`)
-            }
+      }
         })
-        // Logic for creating contact
-        const query = `INSERT into contact (
+    // Logic for creating contact
+    const query = `INSERT into contact (
             "jobid",
             "firstname",
             "lastname",
@@ -52,23 +52,23 @@ class Contact{
         RETURNING "jobid", "firstname", "lastname", email, phone, relationship, notes, followupdates`
 
         const client = await psPool.connect()
-        let result;
+    let result;
         const date = contact.followupDates? new Date(contact.followupDates) : null
         try{
             const res = await client.query(query, [contact.jobId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.relationship, contact.notes, date])
             result = await res.rows[0]
-        } catch (err) {
+    } catch (err) {
             throw new BadRequestError(err.message)
-        } finally {
+    } finally {
             client.release()
-        }
-
-        return result
     }
 
-    static async updateContact(contact) {
-        // Logic for updating contact
-        const query = `UPDATE contact 
+        return result
+  }
+
+  static async updateContact(contact) {
+    // Logic for updating contact
+    const query = `UPDATE contact 
         SET "jobid" = $1,
         "firstname" = $2, 
         "lastname" = $3, 
@@ -79,39 +79,39 @@ class Contact{
         "followupdates" = $8 
         WHERE contactid = $9
         RETURNING *`
-        
+
         const client = await psPool.connect()
-        let result;
+    let result;
         try{
             const res = await client.query(query, [contact.jobId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.relationship, contact.notes, new Date(contact.followupDates), contact.contactId])
             result = res.rows[0]
-        } catch (err) {
+    } catch (err) {
             console.log(err.stack)
-        } finally {
+    } finally {
             client.release()
-        }
-
-        return result
     }
 
-    static async deleteContact(contact) {
+        return result
+  }
+
+  static async deleteContact(contact) {
         console.log(contact)
-        // Logic for deleting contact
+    // Logic for deleting contact
         const query = `DELETE FROM contact WHERE "contactid" = $1`
-        
+
         const client = await psPool.connect()
-        let result;
+    let result;
         try{
             const res = await client.query(query, [contact.id])
             result = res.rows[0]
-        } catch (err) {
+    } catch (err) {
             console.log(err.stack)
-        } finally {
+    } finally {
             client.release()
-        }
+    }
 
         return result
-    }
+  }
 }
 
 module.exports = Contact;
