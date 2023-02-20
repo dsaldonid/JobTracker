@@ -66,6 +66,7 @@ class Contact {
   }
 
   static async updateContact(contact) {
+    console.log("What is: contact: ", contact)
     // Logic for updating contact
     const query = `UPDATE contact 
         SET "jobid" = $1,
@@ -81,8 +82,9 @@ class Contact {
 
         const client = await psPool.connect()
     let result;
+    let dateFormatted = contact.followupDates ? new Date(contact.followupDates) : new Date()
         try{
-            const res = await client.query(query, [contact.jobId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.relationship, contact.notes, new Date(contact.followupDates), contact.contactId])
+            const res = await client.query(query, [contact.jobId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.relationship, contact.notes, dateFormatted, contact.contactId])
             result = res.rows[0]
     } catch (err) {
             console.log(err.stack)
