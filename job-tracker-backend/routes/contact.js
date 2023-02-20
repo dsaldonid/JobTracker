@@ -6,7 +6,7 @@ const router = express.Router()
 router.get("/dashboard", async(req, res, next) => {
     try{
         // Get all user contacts
-       const contact = await Contact.getAllContacts(req.body)
+       const contact = await Contact.getAllContacts(req.userId)
        return res.status(200).json({ contact })
     } catch(err){
         next(err)
