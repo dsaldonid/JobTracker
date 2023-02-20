@@ -259,30 +259,29 @@ const ContactsTable: React.FC = observer(() => {
       companyName: addContact.companyName,
       firstName: addContact.firstName,
       lastName: addContact.lastName,
-      title: addContact.title,
       email: addContact.email,
       phone: addContact.phone,
       relationship: addContact.relationship,
       notes: addContact.notes,
       followUpDate: addContact.followUpDate,
     };
-    // Axios.post(`${baseURL}/jobs`, newContact, {
-    //   headers: {
-    //     Authorization: `Bearer ${store.session}`,
-    //   },
-    // }).then((response) => {
-    //   // console.log("3nd localhost res is: ", response.data);
-    // });
-    // Axios.get(`${baseURL}/jobs`, {
-    //   headers: {
-    //     Authorization: `Bearer ${store.session}`,
-    //   },
-    // }).then((response) => {
-    //   setAllContacts(response.data);
-    //   // console.log("2nd localhost res is: ", response.data);
-    // });
+    Axios.post(`${baseURL}/contact/createContact`, newContact, {
+      headers: {
+        Authorization: `Bearer ${store.session}`,
+      },
+    }).then((response) => {
+      // console.log("3nd localhost res is: ", response.data);
+    });
+    Axios.get(`${baseURL}/contact/dashboard`, {
+      headers: {
+        Authorization: `Bearer ${store.session}`,
+      },
+    }).then((response) => {
+      setAllContacts(response.data);
+      // console.log("2nd localhost res is: ", response.data);
+    });
     // console.log("add job: ", newJob);
-    setAllContacts([...allContacts, newContact]);
+    // setAllContacts([...allContacts, newContact]);
   };
 
   /*------------------------------------Update/Edit Row Logic------------------------------------*/
@@ -452,9 +451,9 @@ const ContactsTable: React.FC = observer(() => {
         <form onSubmit={handleAddContactFormSubmit}>
           <TextField
             type="text"
-            name="companyName"
+            name="jobId"
             required
-            placeholder="Enter company name.."
+            placeholder="Enter job id.."
             onChange={handleChangeAddContact}
             variant="outlined"
             style={{ width: "200px", margin: "5px" }}
@@ -478,15 +477,6 @@ const ContactsTable: React.FC = observer(() => {
             required
             placeholder="Enter last name.."
             onChange={handleChangeAddContact}
-          ></TextField>
-          <TextField
-            type="text"
-            name="title"
-            // value={addJob.date_posted}
-            placeholder="Enter title.."
-            onChange={handleChangeAddContact}
-            variant="outlined"
-            style={{ width: "200px", margin: "5px" }}
           ></TextField>
           <br />
           <TextField
