@@ -40,8 +40,8 @@ import Axios from "axios";
 const baseURL = "http://localhost:3003";
 // Interface for Jobs:
 interface Contact {
-  rowId: GridRowId;
-  companyName?: string;
+  contactId: GridRowId;
+  jobId: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -50,6 +50,50 @@ interface Contact {
   notes?: string;
   followUpDate?: string | Date;
 }
+interface ContactDB {
+  jobId: string;
+  contactid: GridRowId;
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  phone?: string;
+  relationship?: string;
+  notes?: string;
+  followupdates?: string | Date;
+}
+
+function filterResponse(data: ContactDB[]) {
+  console.log("send data is: ", data);
+  const contactRecord = {
+    contactId: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    relationship: "",
+    notes: "",
+    followUpDate: "",
+  };
+  let filteredResponse = new Array();
+  data.forEach((contact: ContactDB) => {
+    const contactObject: Contact = Object.create(contactRecord);
+    // console.log("contact is: ", contact, contact.lastname, typeof contact);
+    // console.log("contactObject is: ", contactObject);
+    contactObject.contactId = contact.contactid;
+    contactObject.firstName = contact.firstname;
+    contactObject.lastName = contact.lastname;
+    contactObject.email = contact.email;
+    contactObject.phone = contact.phone;
+    contactObject.relationship = contact.relationship;
+    contactObject.notes = contact.notes;
+    contactObject.followUpDate = contact.followupdates;
+    console.log("contactObject after is: ", contactObject);
+
+    filteredResponse.push(contactObject);
+  });
+  console.log("filteredResponse: ", filteredResponse);
+  return filteredResponse;
+}
 
 // export default function ContactsTable({ cookie }: PropTypes) {
 const ContactsTable: React.FC = observer(() => {
@@ -57,8 +101,7 @@ const ContactsTable: React.FC = observer(() => {
   const [allContacts, setAllContacts] = React.useState<GridRowsProp>(tableData);
   const [confirmData, setConfirmData] = React.useState<any>(null);
   const [addContact, setAddContact] = React.useState<Contact>({
-    rowId: "",
-    companyName: "",
+    contactId: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -79,13 +122,6 @@ const ContactsTable: React.FC = observer(() => {
   };
 
   const columns: GridColDef[] = [
-    {
-      field: "companyName",
-      headerName: "Company Name",
-      width: 150,
-      editable: false,
-      sortable: true,
-    },
     {
       field: "firstName",
       headerName: "Full Name",
@@ -219,19 +255,21 @@ const ContactsTable: React.FC = observer(() => {
 
   React.useEffect(() => {
     setLoading(true);
-    // console.log("Hello from JobsTable");
+    console.log("Hello from Contacts Table");
     // Grab data from backend on page load:
-    // Axios.get(`${baseURL}/contacts`, {
-    //   headers: {
-    //     // Formatted as "Bearer 248743843", where 248743843 is our session key:
-    // Authorization: `Bearer ${store.session}`,
-    //     Authorization: `Bearer ${store.session}`,
-    //   },
-    // }).then((response) => {
-    //   setAllContacts(response.data);
-    // });
-
     setAllContacts(tableData);
+    Axios.get(`${baseURL}/contact/dashboard`, {
+      headers: {
+        // Formatted as "Bearer 248743843", where 248743843 is our session key:
+        Authorization: `Bearer ${store.session}`,
+        // Authorization: `Bearer ${store.session}`,
+      },
+    }).then((response) => {
+      // console.log("print em:");
+      const filteredResponse = filterResponse(response.data.contact);
+      setAllContacts(filteredResponse);
+    });
+
     setLoading(false);
   }, []);
 
@@ -256,7 +294,7 @@ const ContactsTable: React.FC = observer(() => {
 
     const newContact = {
       contactId: randomId(),
-      companyName: addContact.companyName,
+      jobId: addContact.jobId,
       firstName: addContact.firstName,
       lastName: addContact.lastName,
       email: addContact.email,
@@ -271,17 +309,18 @@ const ContactsTable: React.FC = observer(() => {
       },
     }).then((response) => {
       // console.log("3nd localhost res is: ", response.data);
+      Axios.get(`${baseURL}/contact/dashboard`, {
+        headers: {
+          // Formatted as "Bearer 248743843", where 248743843 is our session key:
+          Authorization: `Bearer ${store.session}`,
+          // Authorization: `Bearer ${store.session}`,
+        },
+      }).then((response) => {
+        // console.log("print em:");
+        const filteredResponse = filterResponse(response.data.contact);
+        setAllContacts(filteredResponse);
+      });
     });
-    Axios.get(`${baseURL}/contact/dashboard`, {
-      headers: {
-        Authorization: `Bearer ${store.session}`,
-      },
-    }).then((response) => {
-      setAllContacts(response.data);
-      // console.log("2nd localhost res is: ", response.data);
-    });
-    // console.log("add job: ", newJob);
-    // setAllContacts([...allContacts, newContact]);
   };
 
   /*------------------------------------Update/Edit Row Logic------------------------------------*/
