@@ -384,16 +384,16 @@ const ContactsTable: React.FC = observer(() => {
     // console.log("New row is: ", newRow, newRow.jobId);
     // If user responds yes, send new row to database, else resolve old row back:
     if (response == "Yes") {
-      // Axios.put(`${baseURL}/jobs/${newRow.jobId}`, newRow, {
-      //   headers: {
-      //     Authorization: `Bearer ${store.session}`,
-      //   },
-      // }).then((response) => {
-      //   // setAllJobs(response.data);
-      //   // setPosts(response.data);
-      //   console.log("3nd localhost res is: ", response.data);
-      //   resolve(newRow);
-      // });
+      Axios.put(`${baseURL}/contact/updateContact`, newRow, {
+        headers: {
+          Authorization: `Bearer ${store.session}`,
+        },
+      }).then((response) => {
+        // setAllJobs(response.data);
+        // setPosts(response.data);
+        console.log("3nd localhost res is: ", response.data);
+        resolve(newRow);
+      });
       console.log("this is yestriggers!");
       resolve(newRow);
     } else if (response == "No") {
@@ -441,26 +441,33 @@ const ContactsTable: React.FC = observer(() => {
     // const getDeleteItem = allContacts.filter(
     //   (row) => row.contactId === contactId
     // );
-    const updatedContacts = allContacts.filter(
-      (row) => row.contactId !== contactId
-    );
-    console.log("updated contacts are: ", contactId, updatedContacts);
-    setAllContacts(updatedContacts);
-    // const delete_record = { contactId: contactId };
-    // Axios.delete(`${baseURL}/contact/${jobId}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${store.session}`,
-    //   },
-    // }).then((response) => {
-    //   Axios.get(`${baseURL}/contacts`, {
-    //     headers: {
-    //       Authorization: `Bearer ${store.session}`,
-    //     },
-    //   }).then((response) => {
-    //     setAllContacts(response.data);
-    //   });
-    //   console.log("3nd localhost res is: ", response.data);
-    // });
+  
+   
+    const delete_record = { id: contactId };
+    console.log("What is: delete_record: ", delete_record)
+    Axios.delete(`${baseURL}/contact/deleteContact`, {
+      headers: {
+        Authorization: `Bearer ${store.session}`,
+      }, 
+      data: {
+        id: contactId 
+      }
+    }).then((response) => {
+      const updatedContacts = allContacts.filter(
+        (row) => row.contactId !== contactId
+      );
+      setAllContacts(updatedContacts);
+
+      // Axios.get(`${baseURL}/contacts`, {
+      //   headers: {
+      //     Authorization: `Bearer ${store.session}`,
+      //   },
+      // }).then((response) => {
+        
+      //   setAllContacts(response.data);
+      // });
+      console.log("3nd localhost res is: ", response.data);
+    });
   };
 
   return (
