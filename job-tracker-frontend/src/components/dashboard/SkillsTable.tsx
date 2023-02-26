@@ -86,6 +86,24 @@ const SkillsTable: React.FC = observer(() => {
     });
   };
 
+  const handleDelete = (skillId: number) => {
+    // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
+    const delete_record = { skillId: skillId };
+    Axios.delete(`${baseURL}/skills/${skillId}`, {
+      headers: {
+        Authorization: `Bearer ${store.session}`,
+      },
+    }).then((response) => {
+      Axios.get(`${baseURL}/jobs`, {
+        headers: {
+          Authorization: `Bearer ${store.session}`,
+        },
+      }).then((response) => {
+        //setAllJobs(response.data);
+      });
+    });
+  };
+
   return (
     <React.Fragment>
       <Title>Skills</Title>
