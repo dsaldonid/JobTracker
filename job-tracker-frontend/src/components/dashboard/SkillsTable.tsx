@@ -5,13 +5,14 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
-import { Button, Grid, Input } from '@mui/material';
+import { Button, Grid, Input, LinearProgress, Paper, SxProps, TableContainer } from '@mui/material';
 import AppStore from "../app/AppStore";
 import { AppContext } from "../../index"
 import { observer } from "mobx-react-lite";
 import { randomId } from '@mui/x-data-grid-generator';
 import Axios from "axios";
 import { slotShouldForwardProp } from '@mui/material/styles/styled';
+import { DataGrid, GridColDef, GridRowId, GridRowsProp } from '@mui/x-data-grid';
 
 const baseURL = "http://localhost:3003";
 
@@ -53,10 +54,16 @@ function preventDefault(event: React.MouseEvent) {
 }
 
 interface Skill {
-  skillId?: string;
+  skillid: GridRowId;
+  skillname: string;
+  comfortlevel: number;
+};
+
+interface SkillCreateParam {
+  skillId: string;
   skillName: string;
   comfortLevel: number;
-};
+}
 
 const SkillsTable: React.FC = observer(() => {
   const store: AppStore = React.useContext(AppContext);
@@ -64,11 +71,14 @@ const SkillsTable: React.FC = observer(() => {
   const [skillName, setSkillName] = React.useState<string>('');
   const [skillLevel, setSkillLevel] = React.useState<number>(0);
   const [submitDisabled, setSubmitDisabled] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [pageSize, setPageSize] = React.useState<number>(20);
+  const [skills, setSkills] = React.useState<GridRowsProp>([]);
 
   const handleSubmit = () => {
     setSubmitDisabled(true);
 
-    const newSkill: Skill = {
+    const newSkill: SkillCreateParam = {
       skillId: randomId(),
       skillName: skillName,
       comfortLevel: skillLevel,
@@ -82,14 +92,25 @@ const SkillsTable: React.FC = observer(() => {
       setSkillName('');
       setSkillLevel(0);
       setSubmitDisabled(false);
-     alert("Success");
+      alert("Success");
+      setLoading(true);
+    }).then(() => {
+      Axios.get(`${baseURL}/skills`, {
+        headers: {
+          Authorization: `Bearer ${store.session}`,
+        },
+      }).then((response) => {
+        setLoading(false);
+        console.log(JSON.stringify(response.data))
+        setSkills(response.data);
+      })
     });
   };
 
-  const handleDelete = (skillId: number) => {
+  const handleDelete = (skillid: number) => {
     // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
-    const delete_record = { skillId: skillId };
-    Axios.delete(`${baseURL}/skills/${skillId}`, {
+    const delete_record = { skillid: skillid };
+    Axios.delete(`${baseURL}/skills/${skillid}`, {
       headers: {
         Authorization: `Bearer ${store.session}`,
       },
@@ -103,6 +124,56 @@ const SkillsTable: React.FC = observer(() => {
       });
     });
   };
+
+  const columns: GridColDef []= [
+    {
+      field: "skillname",
+      headerName: "Skill",
+      editable: true,
+      sortable: true,
+      width: 500,
+    },
+    {
+      field: "comfortlevel",
+      headerName: "Comfort Level",
+      editable: true,
+      sortable: true,
+      width: 500,
+    },
+  ];
+
+  const rows: Skill[] = [
+    {
+      skillid: "22",
+      skillname: 'Skill',
+      comfortlevel: 11,
+    }
+  ]
+
+  const dataGridStyles: SxProps = {
+    // Required for Data table creation, if data grid doesn't have a height, it errors out(MUI bug):
+    height: 500,
+  };
+
+  React.useEffect(() => {
+    // console.log("Hello from JobsTable");
+    // Grab data from backend on page load:
+    Axios.get(`${baseURL}/skills`, {
+      headers: {
+        // Formatted as "Bearer 248743843", where 248743843 is our session key:
+        Authorization: `Bearer ${store.session}`,
+      },
+    }).then((response) => {
+      setLoading(false);
+      console.log(JSON.stringify(response.data))
+      setSkills(response.data);
+    });
+
+  }, []);
+
+  if(loading) {
+    return <LinearProgress />
+  }
 
   return (
     <React.Fragment>
@@ -150,22 +221,21 @@ const SkillsTable: React.FC = observer(() => {
           </Button>
         </Grid>
       </Grid>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Skill Name</TableCell>
-            <TableCell align="right">Comfort Level</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.name}</TableCell>
-              <TableCell align="right">{`${row.amount}`}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <TableContainer component={Paper}>
+        <Paper sx={dataGridStyles}>
+          <DataGrid 
+            columns={columns}
+            rows={skills}
+            getRowHeight={() => "auto"}
+            getRowId={(row) => row.skillid}
+            onPageSizeChange={(pageSizeChoice: number) => {setPageSize(pageSizeChoice)}}
+            pageSize={pageSize}
+            rowsPerPageOptions={[20, 40, 60]}
+            // autoPageSize={true}
+            experimentalFeatures={{ newEditingApi: true }}
+          />
+        </Paper>     
+      </TableContainer>
     </React.Fragment>
   );
 })
