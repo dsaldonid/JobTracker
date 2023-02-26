@@ -5,14 +5,14 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
-import { Button, Grid, Input, LinearProgress, Paper, SxProps, TableContainer } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogTitle, Grid, Input, LinearProgress, Paper, SxProps, TableContainer } from '@mui/material';
 import AppStore from "../app/AppStore";
 import { AppContext } from "../../index"
 import { observer } from "mobx-react-lite";
 import { randomId } from '@mui/x-data-grid-generator';
 import Axios from "axios";
 import { slotShouldForwardProp } from '@mui/material/styles/styled';
-import { DataGrid, GridColDef, GridRowId, GridRowsProp } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowId, GridRowModel, GridRowsProp } from '@mui/x-data-grid';
 
 const baseURL = "http://localhost:3003";
 
@@ -59,7 +59,7 @@ interface Skill {
   comfortlevel: number;
 };
 
-interface SkillCreateParam {
+interface SkillRequestParam {
   skillId: string;
   skillName: string;
   comfortLevel: number;
@@ -75,12 +75,89 @@ const SkillsTable: React.FC = observer(() => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [skills, setSkills] = React.useState<GridRowsProp>([]);
+  const [confirmData, setConfirmData] = React.useState<any>(null);
+  
+
+   /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/
+
+  // Editable Cells: new data saved in confirmData
+  // the datagrid API option that I enabled saves the "current row" and "the row before it was edited" so we can access
+  // them and pick which one to render based on user confirmation:
+  const processRowUpdate = React.useCallback(
+    (newRow: GridRowModel, oldRow: GridRowModel) =>
+      new Promise<GridRowModel>((resolve, reject) => {
+        setConfirmData({ resolve, reject, newRow, oldRow });
+      }),
+    []
+  );
+
+  // Handles Errors:
+  const handleProcessRowUpdateError = (error: Error) => {
+    console.log(error);
+  };
+
+  // User chooses dialog options on editted cell:
+  const handleDataChangeDialog = (response: string) => {
+    console.log(JSON.stringify(confirmData));
+    const { newRow, oldRow, resolve } = confirmData;
+
+    const requestParam: SkillRequestParam = {
+      skillId: newRow.skillid,
+      skillName: newRow.skillname,
+      comfortLevel: newRow.comfortlevel,
+    }
+    // console.log("New row is: ", newRow, newRow.jobId);
+    // If user responds yes, send new row to database, else resolve old row back:
+    if (response == "Yes") {
+      Axios.put(`${baseURL}/skills/${requestParam.skillId}`, requestParam, {
+        headers: {
+          Authorization: `Bearer ${store.session}`,
+        },
+      }).then((response) => {
+        // setAllJobs(response.data);
+        // setPosts(response.data);
+        console.log("3nd localhost res is: ", response.data);
+        resolve(newRow);
+      });
+    } else if (response == "No") {
+      resolve(oldRow);
+    }
+    setConfirmData(null);
+  };
+
+  // Promise resolved based on user dialog response:
+  const renderConfirmDialog = () => {
+    // Case 1: Errors:
+    if (!confirmData) {
+      return null;
+    }
+    const { newRow, oldRow, resolve } = confirmData;
+    console.log("what is row right renderConfirmDialog: ", newRow);
+
+    // Case 2: if new input is same as old input, don't show dialog:
+    if (JSON.stringify(newRow) == JSON.stringify(oldRow)) {
+      resolve(oldRow);
+      setConfirmData(null);
+      return;
+    }
+
+    // Default Case: render confirmation dialog:
+    return (
+      <Dialog maxWidth="xs" open={confirmData}>
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => handleDataChangeDialog("No")}>No</Button>
+          <Button onClick={() => handleDataChangeDialog("Yes")}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
 
   const handleSubmit = () => {
     setSubmitDisabled(true);
     setDeleteDisabled(true);
 
-    const newSkill: SkillCreateParam = {
+    const newSkill: SkillRequestParam = {
       skillId: randomId(),
       skillName: skillName,
       comfortLevel: skillLevel,
@@ -203,6 +280,7 @@ const SkillsTable: React.FC = observer(() => {
 
   return (
     <React.Fragment>
+      {renderConfirmDialog()}
       <Title>Skills</Title>
       <Grid container xs={12} md={12} lg={12}>
       <Grid
@@ -259,6 +337,8 @@ const SkillsTable: React.FC = observer(() => {
             rowsPerPageOptions={[20, 40, 60]}
             // autoPageSize={true}
             experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={processRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
           />
         </Paper>     
       </TableContainer>
