@@ -71,12 +71,14 @@ const SkillsTable: React.FC = observer(() => {
   const [skillName, setSkillName] = React.useState<string>('');
   const [skillLevel, setSkillLevel] = React.useState<number>(0);
   const [submitDisabled, setSubmitDisabled] = React.useState<boolean>(false);
+  const [deleteDisabled, setDeleteDisabled] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [pageSize, setPageSize] = React.useState<number>(20);
   const [skills, setSkills] = React.useState<GridRowsProp>([]);
 
   const handleSubmit = () => {
     setSubmitDisabled(true);
+    setDeleteDisabled(true);
 
     const newSkill: SkillCreateParam = {
       skillId: randomId(),
@@ -92,8 +94,9 @@ const SkillsTable: React.FC = observer(() => {
       setSkillName('');
       setSkillLevel(0);
       setSubmitDisabled(false);
-      alert("Success");
+      setDeleteDisabled(false);
       setLoading(true);
+      alert("Success");
     }).then(() => {
       Axios.get(`${baseURL}/skills`, {
         headers: {
@@ -109,6 +112,8 @@ const SkillsTable: React.FC = observer(() => {
 
   const handleDelete = (skillid: string) => {
     // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
+    setSubmitDisabled(true);
+    setDeleteDisabled(true);
     const delete_record = { skillId: skillid };
     Axios.delete(`${baseURL}/skills/${skillid}`, {
       headers: {
@@ -121,6 +126,8 @@ const SkillsTable: React.FC = observer(() => {
           Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
+        setSubmitDisabled(false);
+        setDeleteDisabled(false);
         alert("Successfully deleted");
         setSkills(response.data);
         setLoading(false);
@@ -152,6 +159,7 @@ const SkillsTable: React.FC = observer(() => {
           <Button
             onClick={() => handleDelete(params.row.skillid)}
             variant="contained"
+            disabled={deleteDisabled}
           >
             Delete
           </Button>
