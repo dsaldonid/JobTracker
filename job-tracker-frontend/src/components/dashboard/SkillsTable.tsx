@@ -101,26 +101,29 @@ const SkillsTable: React.FC = observer(() => {
         },
       }).then((response) => {
         setLoading(false);
-        console.log(JSON.stringify(response.data))
         setSkills(response.data);
+        setLoading(false);
       })
     });
   };
 
-  const handleDelete = (skillid: number) => {
+  const handleDelete = (skillid: string) => {
     // const getDeleteItem = allJobs.filter((row) => row.jobId === jobId);
-    const delete_record = { skillid: skillid };
+    const delete_record = { skillId: skillid };
     Axios.delete(`${baseURL}/skills/${skillid}`, {
       headers: {
         Authorization: `Bearer ${store.session}`,
       },
-    }).then((response) => {
-      Axios.get(`${baseURL}/jobs`, {
+    }).then(() => {
+      setLoading(true);
+      Axios.get(`${baseURL}/skills`, {
         headers: {
           Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
-        //setAllJobs(response.data);
+        alert("Successfully deleted");
+        setSkills(response.data);
+        setLoading(false);
       });
     });
   };
@@ -139,6 +142,21 @@ const SkillsTable: React.FC = observer(() => {
       editable: true,
       sortable: true,
       width: 500,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 100,
+      renderCell: (params) => {
+        return (
+          <Button
+            onClick={() => handleDelete(params.row.skillid)}
+            variant="contained"
+          >
+            Delete
+          </Button>
+        );
+      },
     },
   ];
 
