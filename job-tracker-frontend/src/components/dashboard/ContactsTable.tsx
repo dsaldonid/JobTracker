@@ -60,6 +60,7 @@ interface ContactDB {
   firstname?: string;
   lastname?: string;
   email?: string;
+  company?: string;
   phone?: string;
   relationship?: string;
   notes?: string;
@@ -70,6 +71,7 @@ function filterResponse(data: ContactDB[]) {
   console.log("send data is: ", data);
   const contactRecord = {
     contactId: "",
+    company: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -85,6 +87,7 @@ function filterResponse(data: ContactDB[]) {
     // console.log("contactObject is: ", contactObject);
     contactObject.jobId = contact.jobid;
     contactObject.contactId = contact.contactid;
+    contactObject.company = contact.company;
     contactObject.firstName = contact.firstname;
     contactObject.lastName = contact.lastname;
     contactObject.email = contact.email;
@@ -159,6 +162,14 @@ const ContactsTable: React.FC = observer(() => {
     {
       field: "email",
       headerName: "Email",
+      hide: false,
+      width: 120,
+      editable: true,
+      sortable: true,
+    },
+    {
+      field: "company",
+      headerName: "Company",
       hide: false,
       width: 120,
       editable: true,
@@ -328,8 +339,9 @@ const ContactsTable: React.FC = observer(() => {
         // Authorization: `Bearer ${store.session}`,
       },
     }).then((response) => {
-      // console.log("print em:");
+      console.log("print em:", response.data.contact);
       const filteredResponse = filterResponse(response.data.contact);
+      console.log("print em after:", filteredResponse);
       setAllContacts(filteredResponse);
     });
 
