@@ -49,6 +49,7 @@ interface Contact {
   firstName?: string;
   lastName?: string;
   email?: string;
+  company?: string;
   phone?: string;
   relationship?: string;
   notes?: string;
@@ -617,9 +618,6 @@ const ContactsTable: React.FC = observer(() => {
                   </MenuItem>
                 );
               })}
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
             </Select>
           </FormControl>
           <TextField
