@@ -568,24 +568,30 @@ const ContactsTable: React.FC = observer(() => {
               onChange={handleJobChange}
             >
               {allJobs.map((job) => {
-                const createdNewDate = new Date(job.dateCreated);
+                const createdDateCreated = new Date(job.dateCreated);
+                const createdDateApplied = new Date(job.dateApplied);
                 const dateOptions = {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
                 };
-                const dateCreated1 =
-                  createdNewDate.toLocaleDateString(undefined, dateOptions) ??
-                  "Value is Blank";
-                const dateCreated = "tiger";
+                const dateCreated =
+                  createdDateCreated.toLocaleDateString(
+                    undefined,
+                    dateOptions
+                  ) ?? "Value is Blank";
+                const dateApplied =
+                  createdDateApplied.toLocaleDateString(
+                    undefined,
+                    dateOptions
+                  ) ?? "Value is Blank";
+                const dateCreated1 = "tiger";
                 return (
                   <MenuItem name={job.jobId} value={job.jobId}>
                     <strong>Company</strong>: {job.company},{"  "}
                     <strong> Job Title</strong>: {job.jobTitle},{"  "}
-                    <strong> Date Created</strong>:{" "}
-                    {job.dateApplied || "Empty Entry"},{"  "}
-                    <strong> Date Applied</strong>:
-                    {job.dateApplied || "Empty Entry"}
+                    <strong> Date Created</strong>: {dateCreated},{"  "}
+                    <strong> Date Applied</strong>: {dateApplied}
                   </MenuItem>
                 );
               })}
