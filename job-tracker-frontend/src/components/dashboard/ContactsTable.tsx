@@ -293,6 +293,8 @@ const ContactsTable: React.FC = observer(() => {
           jobId: job.jobId,
           jobTitle: job.jobTitle,
           company: job.company,
+          dateCreated: job.dateCreated,
+          dateApplied: job.dateApplied,
         };
       });
       console.log("mapped data is: ", mappedData);
@@ -565,11 +567,28 @@ const ContactsTable: React.FC = observer(() => {
               label="Job"
               onChange={handleJobChange}
             >
-              {allJobs.map((job) => (
-                <MenuItem name={job.jobId} value={job.jobId}>
-                  {job.company}: {job.jobTitle}
-                </MenuItem>
-              ))}
+              {allJobs.map((job) => {
+                const createdNewDate = new Date(job.dateCreated);
+                const dateOptions = {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                };
+                const dateCreated1 =
+                  createdNewDate.toLocaleDateString(undefined, dateOptions) ??
+                  "Value is Blank";
+                const dateCreated = "tiger";
+                return (
+                  <MenuItem name={job.jobId} value={job.jobId}>
+                    <strong>Company</strong>: {job.company},{"  "}
+                    <strong> Job Title</strong>: {job.jobTitle},{"  "}
+                    <strong> Date Created</strong>:{" "}
+                    {job.dateApplied || "Empty Entry"},{"  "}
+                    <strong> Date Applied</strong>:
+                    {job.dateApplied || "Empty Entry"}
+                  </MenuItem>
+                );
+              })}
               <MenuItem value={10}>Ten</MenuItem>
               <MenuItem value={20}>Twenty</MenuItem>
               <MenuItem value={30}>Thirty</MenuItem>
