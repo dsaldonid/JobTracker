@@ -96,15 +96,12 @@ function filterResponse(data: ContactDB[]) {
     contactObject.relationship = contact.relationship;
     contactObject.notes = contact.notes;
     const newDate = new Date(contact.followupdates);
-    const dateOptions = {
+    const options = {
       year: "numeric",
       month: "short",
       day: "numeric",
     };
-    contactObject.followUpDate = newDate.toLocaleDateString(
-      undefined,
-      dateOptions
-    );
+    contactObject.followUpDate = newDate.toLocaleDateString("en-US", options);
     console.log("contactObject after is: ", contactObject);
 
     filteredResponse.push(contactObject);
@@ -593,21 +590,17 @@ const ContactsTable: React.FC = observer(() => {
               {allJobs.map((job) => {
                 const createdDateCreated = new Date(job.dateCreated);
                 const createdDateApplied = new Date(job.dateApplied);
-                const dateOptions = {
+                const options = {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
                 };
                 const dateCreated =
-                  createdDateCreated.toLocaleDateString(
-                    undefined,
-                    dateOptions
-                  ) ?? "Value is Blank";
+                  createdDateCreated.toLocaleDateString("en-US", options) ??
+                  "Value is Blank";
                 const dateApplied =
-                  createdDateApplied.toLocaleDateString(
-                    undefined,
-                    dateOptions
-                  ) ?? "Value is Blank";
+                  createdDateApplied.toLocaleDateString("en-US", options) ??
+                  "Value is Blank";
                 const dateCreated1 = "tiger";
                 return (
                   <MenuItem name={job.jobId} value={job.jobId}>
