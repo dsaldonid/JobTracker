@@ -147,14 +147,14 @@ const ContactsTable: React.FC = observer(() => {
   const columns: GridColDef[] = [
     {
       field: "firstName",
-      headerName: "Full Name",
+      headerName: "First Name",
       width: 150,
       editable: true,
       sortable: true,
     },
     {
       field: "lastName",
-      headerName: "Full Name",
+      headerName: "Last Name",
       width: 150,
       editable: true,
       sortable: true,
