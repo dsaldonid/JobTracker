@@ -94,7 +94,16 @@ function filterResponse(data: ContactDB[]) {
     contactObject.phone = contact.phone;
     contactObject.relationship = contact.relationship;
     contactObject.notes = contact.notes;
-    contactObject.followUpDate = contact.followupdates;
+    const newDate = new Date(contact.followupdates);
+    const dateOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    };
+    contactObject.followUpDate = newDate.toLocaleDateString(
+      undefined,
+      dateOptions
+    );
     console.log("contactObject after is: ", contactObject);
 
     filteredResponse.push(contactObject);
@@ -198,6 +207,7 @@ const ContactsTable: React.FC = observer(() => {
       width: 150,
       editable: true,
       sortable: true,
+      hide: true,
       renderCell: CustomRenderComponent,
       renderEditCell: CustomEditComponent,
     },
