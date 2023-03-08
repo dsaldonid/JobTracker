@@ -41,7 +41,8 @@ import { styled } from "@mui/material/styles";
 import { randomId } from "@mui/x-data-grid-generator";
 import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
 import Axios from "axios";
-const baseURL = "http://localhost:3003";
+const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
+// const baseURL = "http://localhost:3003";
 // Interface for Jobs:
 interface Contact {
   contactId: GridRowId;
@@ -322,18 +323,6 @@ const ContactsTable: React.FC = observer(() => {
       setLoading(false);
     });
   }, []);
-  // console.log("all jobs is: ", allJobs);
-  // allJobs.forEach((job) => {
-  //   console.log("all jobs is each: ", job.jobId);
-  //   console.log("all jobs is each: ", job.jobTitle);
-  //   console.log("all jobs is each: ", job.company);
-  // });
-  // const getJobData = (data: any) => {
-  //   let jobData = [];
-  //   data.forEach((object) => {
-  //     console.log("the obj is: ", object);
-  //   });
-  // };
 
   React.useEffect(() => {
     setLoading(true);
@@ -400,7 +389,7 @@ const ContactsTable: React.FC = observer(() => {
           // Authorization: `Bearer ${store.session}`,
         },
       }).then((response) => {
-        // console.log("print em:");
+        console.log("print em:", response.data.contact);
         const filteredResponse = filterResponse(response.data.contact);
         setAllContacts(filteredResponse);
       });
