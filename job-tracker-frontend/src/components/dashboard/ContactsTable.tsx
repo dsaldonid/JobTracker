@@ -405,6 +405,8 @@ const ContactsTable: React.FC = observer(() => {
         setAllContacts(filteredResponse);
       });
     });
+    e.target.reset();
+    setJobChosen("");
   };
 
   /*------------------------------------Update/Edit Row Logic------------------------------------*/
