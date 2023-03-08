@@ -52,10 +52,19 @@ class Contact {
 
         const client = await psPool.connect()
     let result;
-        const date = contact.followupDates? new Date(contact.followupDates) : null
-        try{
-            const res = await client.query(query, [contact.jobId, contact.firstName, contact.lastName, contact.email, contact.phone, contact.relationship, contact.notes, date])
-            result = await res.rows[0]
+    const date = contact.followUpDate ? new Date(contact.followUpDate) : null;
+    try {
+      const res = await client.query(query, [
+        contact.jobId,
+        contact.firstName,
+        contact.lastName,
+        contact.email,
+        contact.phone,
+        contact.relationship,
+        contact.notes,
+        date,
+      ]);
+      result = await res.rows[0];
     } catch (err) {
             throw new BadRequestError(err.message)
     } finally {
