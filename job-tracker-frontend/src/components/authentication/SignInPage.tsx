@@ -1,22 +1,22 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {observer} from 'mobx-react-lite'
-import AppStore from '../app/AppStore';
-import { AppContext } from '../..';
-import { AppPageState } from '../app/types';
-import Copyright from '../shared/Copyright';
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { observer } from "mobx-react-lite";
+import AppStore from "../app/AppStore";
+import { AppContext } from "../..";
+import { AppPageState } from "../app/types";
+import Copyright from "../shared/Copyright";
 import Axios from "axios";
 
 const theme = createTheme();
@@ -24,8 +24,7 @@ const theme = createTheme();
 const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
 // const baseURL = "http://localhost:3003/authorize";
 
-const SignInPage: React.FC= observer(()=> {
-
+const SignInPage: React.FC = observer(() => {
   const authorizeUser = () => {
     Axios.get(baseURL).then((response) => {
       // Move client to URL of redirect site>
@@ -44,12 +43,12 @@ const SignInPage: React.FC= observer(()=> {
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
@@ -60,7 +59,9 @@ const SignInPage: React.FC= observer(()=> {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={()=>{authorizeUser()}}
+              onClick={() => {
+                authorizeUser();
+              }}
             >
               Sign In WIth Google
             </Button>
@@ -70,6 +71,5 @@ const SignInPage: React.FC= observer(()=> {
       </Container>
     </ThemeProvider>
   );
-}
-)
+});
 export default SignInPage;

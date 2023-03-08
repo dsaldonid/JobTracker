@@ -180,7 +180,7 @@ const ContactsTable: React.FC = observer(() => {
       headerName: "Company",
       hide: false,
       width: 120,
-      editable: true,
+      editable: false,
       sortable: true,
     },
     {

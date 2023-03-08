@@ -88,10 +88,8 @@ const Drawer = styled(MuiDrawer, {
 
 const mdTheme = createTheme();
 
-
-
 const Dashboard: React.FC = observer(() => {
-    const store: AppStore = React.useContext(AppContext);
+  const store: AppStore = React.useContext(AppContext);
 
   const [open, setOpen] = React.useState<boolean>(true);
   const [pageType, setPageType] = React.useState<PageType>(PageType.DASHBOARD);
