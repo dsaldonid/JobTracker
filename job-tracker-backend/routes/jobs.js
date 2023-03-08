@@ -1,11 +1,24 @@
 const psPool = require('../utils/psPool')
 
 module.exports = function(app) {
-    //Description: Returns all jobs as an array with nested contacts and skills objects (to be built)
+    //Description: Returns all jobs as an array with nested contacts and skills objects
     app.get('/jobs', function (req, res) {
         psPool.connect((err, client, done) => {
+            const buildSkills = `'skillid', s.skillid, 'skillname', s.skillname, 'comfortlevel', s.comfortlevel`;
+            const checkSkills = `[{"skillid" : null, "skillname" : null, "comfortlevel" : null}]`;
+
             let query = {
-                text: 'SELECT * FROM job WHERE "userId" = $1',
+                text: `SELECT j.*,
+                COALESCE(NULLIF(json_agg(json_build_object(${buildSkills}))::TEXT, '${checkSkills}'), '[]')::JSON
+                    AS skills,
+                json_agg(c)
+                    AS contacts
+                FROM job j
+                LEFT JOIN jobskills js on j."jobId" = js.jobid
+                LEFT JOIN skill s on js.skillid = s.skillid
+                LEFT JOIN contact c on c.jobid = j."jobId"
+                WHERE j."userId" = $1
+                GROUP BY j."jobId"`,
                 values: [req.userId]
             }
     
@@ -113,4 +126,46 @@ module.exports = function(app) {
             })
         })
     });
+
+        //Description: Creates a relationship between a job_id and a skill_id
+        app.post('/jobs/:job_id/skills/:skill_id', function (req, res) {
+            psPool.connect((err, client, done) => {
+                let query = {
+                    text: 'INSERT INTO jobskills(jobid, skillid) VALUES($1, $2) RETURNING *',
+                    values: [req.params.job_id, req.params.skill_id]
+                }
+        
+                client.query(query, (err, ps_res) => {
+                    done();
+        
+                    if (err) {
+                        console.log(err.stack);
+                        res.sendStatus(400);
+                    } else {
+                        res.sendStatus(200);
+                    }
+                })
+            })
+        });
+
+        //Description: Deletes a relationship between a job_id and a skill_id
+        app.delete('/jobs/:job_id/skills/:skill_id', function (req, res) {
+            psPool.connect((err, client, done) => {
+                let query = {
+                    text: 'DELETE FROM jobskills WHERE (jobid = $1 AND skillid = $2)',
+                    values: [req.params.job_id, req.params.skill_id]
+                }
+        
+                client.query(query, (err, ps_res) => {
+                    done();
+        
+                    if (err) {
+                        console.log(err.stack);
+                        res.sendStatus(400);
+                    } else {
+                        res.sendStatus(204);
+                    }
+                })
+            })
+        });
 }

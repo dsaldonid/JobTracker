@@ -87,6 +87,9 @@ app.use("/contact", contactRoutes);
 //Creates GET, POST, PUT and DELETE endpoints for /jobs
 require("./routes/jobs")(app);
 
+//Creates GET, POST, PUT and DELETE endpoints for /skills
+require('./routes/skills')(app);
+
 // If no routes are touched then we will get a 404 error
 app.use((req, res, next) => {
   return next(new NotFoundError());

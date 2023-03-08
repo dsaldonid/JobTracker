@@ -1,5 +1,5 @@
-const psPool = require("../utils/psPool");
-const { UnauthorizedError, BadRequestError } = require('../utils/errors');
+const psPool = require('../utils/psPool')
+const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 
 class Contact {
   static async getAllContacts(user) {
