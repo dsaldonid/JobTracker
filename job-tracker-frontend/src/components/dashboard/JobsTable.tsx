@@ -324,7 +324,8 @@ const JobsTable: React.FC = observer(() => {
     });
     // console.log("add job: ", newJob);
     setAllJobs([...allJobs, newJob]);
-    e.target.reset();
+    const jobForm = document.querySelector("form") as HTMLFormElement;
+    jobForm.reset();
   };
 
   /*------------------------------------Update/Edit Cell Dialog Logic------------------------------------*/

@@ -21,13 +21,14 @@ import Axios from "axios";
 
 const theme = createTheme();
 
-const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
 // const baseURL = "http://localhost:3003/authorize";
+const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com/authorize";
 
 const SignInPage: React.FC = observer(() => {
   const authorizeUser = () => {
     Axios.get(baseURL).then((response) => {
       // Move client to URL of redirect site>
+      console.log("redirect url is: ", response.data.url);
       window.location.replace(response.data.url);
       const url = new URL(response.data.url);
       const codeId = url.searchParams.get("code");

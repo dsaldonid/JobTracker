@@ -68,6 +68,13 @@ interface ContactDB {
   notes?: string;
   followupdates?: string | Date;
 }
+interface mappedContact {
+  jobId: string;
+  jobTitle: string;
+  company?: string;
+  dateCreated?: string;
+  dateApplied?: string;
+}
 
 function filterResponse(data: ContactDB[]) {
   console.log("send data is: ", data);
@@ -96,10 +103,10 @@ function filterResponse(data: ContactDB[]) {
     contactObject.phone = contact.phone;
     contactObject.relationship = contact.relationship;
     contactObject.notes = contact.notes;
-    const newDate = new Date(contact.followupdates);
-    const options = {
-      year: "numeric",
+    const newDate = new Date(contact.followupdates!);
+    const options: Intl.DateTimeFormatOptions = {
       month: "short",
+      year: "numeric",
       day: "numeric",
     };
     contactObject.followUpDate = newDate.toLocaleDateString("en-US", options);
@@ -308,7 +315,7 @@ const ContactsTable: React.FC = observer(() => {
         response.data,
         typeof response.data
       );
-      let mappedData = response.data.map((job) => {
+      let mappedData = response.data.map((job: mappedContact) => {
         return {
           jobId: job.jobId,
           jobTitle: job.jobTitle,
@@ -394,7 +401,8 @@ const ContactsTable: React.FC = observer(() => {
         setAllContacts(filteredResponse);
       });
     });
-    e.target.reset();
+    const contactForm = document.querySelector("form") as HTMLFormElement;
+    contactForm.reset();
     setJobChosen("");
   };
 
@@ -581,9 +589,10 @@ const ContactsTable: React.FC = observer(() => {
               {allJobs.map((job) => {
                 const createdDateCreated = new Date(job.dateCreated);
                 const createdDateApplied = new Date(job.dateApplied);
-                const options = {
-                  year: "numeric",
+
+                const options: Intl.DateTimeFormatOptions = {
                   month: "short",
+                  year: "numeric",
                   day: "numeric",
                 };
                 const dateCreated =
@@ -594,7 +603,7 @@ const ContactsTable: React.FC = observer(() => {
                   "Value is Blank";
                 const dateCreated1 = "tiger";
                 return (
-                  <MenuItem name={job.jobId} value={job.jobId}>
+                  <MenuItem value={job.jobId}>
                     <strong>Company</strong>: {job.company},{"  "}
                     <strong> Job Title</strong>: {job.jobTitle},{"  "}
                     <strong> Date Created</strong>: {dateCreated},{"  "}
