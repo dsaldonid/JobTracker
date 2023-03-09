@@ -30,8 +30,8 @@ import {
   GridRowModel,
   GridRowsProp,
 } from "@mui/x-data-grid";
-const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
-// const baseURL = "http://localhost:3003";
+// const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
+const baseURL = "http://localhost:3003";
 
 // Generate Order Data
 function createData(id: number, name: string, amount: number) {
