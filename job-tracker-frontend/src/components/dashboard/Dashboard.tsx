@@ -37,10 +37,10 @@ import AppStore from "../app/AppStore";
 import SignInPage from "../authentication/SignInPage";
 const drawerWidth: number = 240;
 
-const baseURL = "http://localhost:3000";
-const serverURL = "http://localhost:3003";
-// const baseURL = "https://jobtracker-376008.uw.r.appspot.com/";
-// const serverURL = "https://job-tracker-postgressql.uw.r.appspot.com/";
+// const baseURL = "http://localhost:3000";
+// const serverURL = "http://localhost:3003";
+const baseURL = "https://jobtracker-376008.uw.r.appspot.com/";
+const serverURL = "https://job-tracker-postgressql.uw.r.appspot.com/";
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
@@ -152,7 +152,7 @@ const Dashboard: React.FC = observer(() => {
       default:
         return (
           <Grid item xs={12} md={12} lg={12}>
-            <Paper
+            {/* <Paper
               sx={{
                 p: 2,
                 display: "flex",
@@ -161,7 +161,7 @@ const Dashboard: React.FC = observer(() => {
               }}
             >
               <Chart />
-            </Paper>
+            </Paper> */}
             <Paper
               sx={{
                 p: 2,

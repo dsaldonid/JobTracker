@@ -21,8 +21,8 @@ import Axios from "axios";
 
 const theme = createTheme();
 
-const baseURL = "http://localhost:3003/authorize";
-// const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com/authorize";
+// const baseURL = "http://localhost:3003/authorize";
+const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com/authorize";
 
 const SignInPage: React.FC = observer(() => {
   const authorizeUser = () => {

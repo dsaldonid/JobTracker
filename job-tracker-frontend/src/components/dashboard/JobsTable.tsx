@@ -39,8 +39,8 @@ import { styled } from "@mui/material/styles";
 import { randomId } from "@mui/x-data-grid-generator";
 import { SubdirectoryArrowRightRounded } from "@mui/icons-material";
 import Axios from "axios";
-// const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
-const baseURL = "http://localhost:3003";
+const baseURL = "https://job-tracker-postgressql.uw.r.appspot.com";
+// const baseURL = "http://localhost:3003";
 // Interface for Jobs:
 interface Job {
   rowId: GridRowId;
@@ -429,7 +429,7 @@ const JobsTable: React.FC = observer(() => {
   // After that, it is just the regular Form Submit stuff
   return (
     <React.Fragment>
-      <h2>MUI TABLE</h2>
+      <h2>Jobs</h2>
       <TableContainer component={Paper}>
         <Paper sx={dataGridStyles}>
           {renderConfirmDialog()}
